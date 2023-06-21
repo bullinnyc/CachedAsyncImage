@@ -38,12 +38,14 @@ struct ContentView: View {
                             CachedAsyncImage(
                                 url: url,
                                 placeholder: {
+                                    // Create any view for placeholder.
                                     ZStack {
                                         Color.yellow
                                         ProgressView()
                                     }
                                 },
                                 image: {
+                                    // Customize image.
                                     Image(uiImage: $0)
                                         .resizable()
                                         .scaledToFill()
@@ -62,6 +64,7 @@ struct ContentView: View {
                             .padding([.leading, .trailing], Self.paddingStandart)
                         }
                     }
+                    .padding([.top, .bottom], Self.paddingStandart)
                 }
             }
         }

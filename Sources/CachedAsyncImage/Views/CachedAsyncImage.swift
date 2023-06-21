@@ -16,7 +16,7 @@ public struct CachedAsyncImage: View {
     
     // MARK: - Private Properties
     
-    private let placeholder: () -> any View
+    private let placeholder: (() -> any View)?
     private let image: (UIImage) -> any View
     
     // MARK: - Body
@@ -32,11 +32,11 @@ public struct CachedAsyncImage: View {
     
     /// - Parameters:
     ///   - url: The URL for which to create a image.
-    ///   - placeholder: Image placeholder.
+    ///   - placeholder: Placeholder to be displayed.
     ///   - image: Image to be displayed.
     public init(
         url: String,
-        placeholder: @escaping () -> any View,
+        placeholder: (() -> any View)? = nil,
         image: @escaping (UIImage) -> any View
     ) {
         _imageLoader = StateObject(
@@ -59,6 +59,7 @@ extension CachedAsyncImage {
         if let uiImage = imageLoader.image {
             AnyView(image(uiImage))
         } else {
+            let placeholder = placeholder ?? { Color.clear }
             AnyView(placeholder())
         }
     }
