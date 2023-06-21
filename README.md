@@ -19,7 +19,8 @@ Enjoy!
 import CachedAsyncImage
 ```
 
-### Create placeholder and customize image
+### Create any view for placeholder and customize image
+**Note:** `placeholder` is an optional parameter.
 
 ```swift
 let exampleUrl = "https://example.com/image.jpg"
@@ -43,7 +44,7 @@ CachedAsyncImage(
 ```
 
 ### Set image cache limit (optional)
-**Note:** The default value is `0`, e.g. is no `countLimit` and is no `totalCostLimit`.
+**Note:** The default value is `0`, e.g. is no count limit and is no total cost limit.
 
 ```swift
 .onAppear {
