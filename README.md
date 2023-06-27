@@ -48,6 +48,7 @@ CachedAsyncImage(
 
 ```swift
 .onAppear {
+    // Set image cache limit.
     TemporaryImageCache.shared.setCacheLimit(
         countLimit: 1000, // 1000 items
         totalCostLimit: 1024 * 1024 * 200 // 200 MB
