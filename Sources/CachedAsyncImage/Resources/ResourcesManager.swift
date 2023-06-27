@@ -16,6 +16,7 @@ public typealias RM = ResourcesManager
 public final class ResourcesManager {
     // MARK: - Public Properties
     
+    /// An object that stores color data.
     public static let snow = UIColor(
         named: "snow",
         in: Bundle.module,
@@ -24,6 +25,11 @@ public final class ResourcesManager {
     
     // MARK: - Public Methods
     
+    /// Get image by name.
+    ///
+    /// - Parameter name: Image name.
+    ///
+    /// - Returns: An initialized image object or `nil` if the object was not found in the resources.
     public static func image(_ name: String) -> UIImage? {
         UIImage(named: name, in: Bundle.module, with: nil)
     }
