@@ -52,8 +52,14 @@ final class NetworkManager: NetworkManagerProtocol {
                 }
                 
                 #if DEBUG
-                    let message = "**** CachedAsyncImage. Status code:"
-                    print("\(message) \(urlResponse.statusCode)")
+                    let message = """
+                    ****
+                    CachedAsyncImage response.
+                    From: \(urlResponse.url?.absoluteString ?? "")
+                    Status code: \(urlResponse.statusCode)
+                    """
+                    
+                    print(message)
                 #endif
                 
                 return tuple.data
