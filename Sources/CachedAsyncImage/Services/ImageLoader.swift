@@ -23,7 +23,9 @@ final class ImageLoader: ObservableObject {
     private var cancellable: AnyCancellable?
     private(set) var isLoading = false
     
-    private static let imageProcessing = DispatchQueue(label: "imageProcessing")
+    private static let imageProcessing = DispatchQueue(
+        label: "com.cachedAsyncImage.imageProcessing"
+    )
     
     // MARK: - Initializers
     
