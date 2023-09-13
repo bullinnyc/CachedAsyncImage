@@ -27,21 +27,20 @@ final class ImageLoaderTests: XCTestCase {
     
     func testFetchImage_WithCachedImage() {
         // Given
-        let imageUrl = URL(string: "https://example.com/image.jpg")
+        let url = "https://example.com/image.jpg"
         let networkManager = sut.networkManager
         let imageCache = sut.imageCache
         let cachedImage = RM.image("backToTheFuture")
         
-        let imageLoader = ImageLoader(
-            url: imageUrl,
-            networkManager: networkManager
-        )
+        let imageLoader = ImageLoader(networkManager: networkManager)
         
         // When
-        guard let imageUrl = imageUrl else { fatalError("Bad URL or nil.") }
+        guard let imageUrl = URL(string: url) else {
+            fatalError("Bad URL or nil.")
+        }
         
         imageCache[imageUrl] = cachedImage
-        imageLoader.fetchImage()
+        imageLoader.fetchImage(from: url)
         
         // Then
         XCTAssertNotNil(imageLoader.image, "Image should be not nil.")
@@ -56,21 +55,20 @@ final class ImageLoaderTests: XCTestCase {
     
     func testFetchImage_WithoutCachedImage() {
         // Given
-        let imageUrl = URL(string: "https://example.com/image.jpg")
+        let url = "https://example.com/image.jpg"
         let networkManager = sut.networkManager
         let imageCache = sut.imageCache
         imageCache.removeCache()
         
-        let imageLoader = ImageLoader(
-            url: imageUrl,
-            networkManager: networkManager
-        )
+        let imageLoader = ImageLoader(networkManager: networkManager)
         
         // When
-        imageLoader.fetchImage()
+        imageLoader.fetchImage(from: url)
         
         // Then
-        guard let imageUrl = imageUrl else { fatalError("Bad URL or nil.") }
+        guard let imageUrl = URL(string: url) else {
+            fatalError("Bad URL or nil.")
+        }
         
         XCTAssertNil(imageCache[imageUrl], "Image cache should be nil.")
         

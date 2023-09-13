@@ -53,8 +53,7 @@ final class NetworkManager: NetworkManagerProtocol {
                 
                 #if DEBUG
                     let message = """
-                    ****
-                    CachedAsyncImage response.
+                    **** CachedAsyncImage response.
                     From: \(urlResponse.url?.absoluteString ?? "")
                     Status code: \(urlResponse.statusCode)
                     """

@@ -16,6 +16,7 @@ public struct CachedAsyncImage: View {
     
     // MARK: - Private Properties
     
+    private let url: String
     private let placeholder: (() -> any View)?
     private let image: (UIImage) -> any View
     
@@ -23,8 +24,9 @@ public struct CachedAsyncImage: View {
     
     public var body: some View {
         content
+            .onChange(of: url, perform: { imageLoader.fetchImage(from: $0) })
             .onAppear {
-                imageLoader.fetchImage()
+                imageLoader.fetchImage(from: url)
             }
     }
     
@@ -40,12 +42,10 @@ public struct CachedAsyncImage: View {
         image: @escaping (UIImage) -> any View
     ) {
         _imageLoader = StateObject(
-            wrappedValue: ImageLoader(
-                url: URL(string: url),
-                networkManager: NetworkManager.shared
-            )
+            wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
         )
         
+        self.url = url
         self.placeholder = placeholder
         self.image = image
     }

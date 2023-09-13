@@ -16,7 +16,6 @@ final class ImageLoader: ObservableObject {
     
     // MARK: - Private Properties
     
-    private let url: URL?
     private let networkManager: NetworkManagerProtocol
     private let imageCache = TemporaryImageCache.shared
     
@@ -29,11 +28,7 @@ final class ImageLoader: ObservableObject {
     
     // MARK: - Initializers
     
-    init(
-        url: URL?,
-        networkManager: NetworkManagerProtocol
-    ) {
-        self.url = url
+    init(networkManager: NetworkManagerProtocol) {
         self.networkManager = networkManager
     }
     
@@ -45,8 +40,10 @@ final class ImageLoader: ObservableObject {
     
     // MARK: - Public Methods
     
-    func fetchImage() {
+    func fetchImage(from url: String) {
         guard !isLoading else { return }
+        
+        let url = URL(string: url)
         
         if let url = url, let cachedImage = imageCache[url] {
             image = cachedImage
@@ -61,7 +58,7 @@ final class ImageLoader: ObservableObject {
                     self?.start()
                 },
                 receiveOutput: { [weak self] in
-                    self?.cache($0)
+                    self?.cache(url: url, image: $0)
                 },
                 receiveCompletion: { [weak self] _ in
                     self?.finish()
@@ -87,7 +84,7 @@ final class ImageLoader: ObservableObject {
         isLoading = false
     }
     
-    private func cache(_ image: UIImage?) {
+    private func cache(url: URL?, image: UIImage?) {
         guard let url = url else { return }
         image.map { imageCache[url] = $0 }
     }
