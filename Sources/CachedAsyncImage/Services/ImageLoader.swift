@@ -13,13 +13,15 @@ final class ImageLoader: ObservableObject {
     // MARK: - Property Wrappers
     
     @Published var image: UIImage?
+    @Published var progress: Double?
+    @Published var errorMessage: String?
     
     // MARK: - Private Properties
     
     private let networkManager: NetworkManagerProtocol
     private let imageCache = TemporaryImageCache.shared
     
-    private var cancellable: AnyCancellable?
+    private var cancellables: Set<AnyCancellable> = []
     private(set) var isLoading = false
     
     private static let imageProcessing = DispatchQueue(
@@ -50,9 +52,27 @@ final class ImageLoader: ObservableObject {
             return
         }
         
-        cancellable = networkManager.fetchImage(from: url)
+        let (progress, data) = networkManager.fetchImage(from: url)
+        
+        progress?
+            .publisher(for: \.fractionCompleted)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] fractionCompleted in
+                self?.progress = fractionCompleted
+            }
+            .store(in: &cancellables)
+        
+        data
             .map { UIImage(data: $0) }
-            .replaceError(with: nil)
+            .catch { [weak self] error -> AnyPublisher<UIImage?, Never> in
+                if let error = error as? NetworkError {
+                    DispatchQueue.main.async {
+                        self?.errorMessage = error.rawValue
+                    }
+                }
+                
+                return Just(nil).eraseToAnyPublisher()
+            }
             .handleEvents(
                 receiveSubscription: { [weak self] _ in
                     self?.start()
@@ -72,6 +92,7 @@ final class ImageLoader: ObservableObject {
             .sink { [weak self] in
                 self?.image = $0
             }
+            .store(in: &cancellables)
     }
     
     // MARK: - Private Methods
@@ -90,6 +111,6 @@ final class ImageLoader: ObservableObject {
     }
     
     private func cancel() {
-        cancellable?.cancel()
+        cancellables.forEach { $0.cancel() }
     }
 }

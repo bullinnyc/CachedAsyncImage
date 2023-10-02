@@ -21,9 +21,13 @@ final class NetworkManagerMock: NetworkManagerProtocol {
     
     // MARK: - Public Methods
     
-    func fetchImage(from url: URL?) -> AnyPublisher<Data, Error> {
+    func fetchImage(from url: URL?) -> (
+        progress: Progress?,
+        publisher: AnyPublisher<Data, Error>
+    ) {
         guard url != nil else {
-            return Fail(error: NetworkError.badURL()).eraseToAnyPublisher()
+            return (nil, Fail(error: NetworkError.badURL())
+                .eraseToAnyPublisher())
         }
         
         let image = RM.image("backToTheFuture")
@@ -32,8 +36,12 @@ final class NetworkManagerMock: NetworkManagerProtocol {
             fatalError("Unable to get data.")
         }
         
-        return Just(imageData)
+        let progress: Progress? = Progress(totalUnitCount: 1)
+        
+        let result = Just(imageData)
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
+        
+        return (progress, result)
     }
 }

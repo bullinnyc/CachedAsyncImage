@@ -18,7 +18,9 @@ public struct CachedAsyncImage: View {
     
     private let url: String
     private let placeholder: (() -> any View)?
+    private let placeholderWithProgress: ((String) -> any View)?
     private let image: (UIImage) -> any View
+    private let error: ((String) -> any View)?
     
     // MARK: - Body
     
@@ -36,10 +38,12 @@ public struct CachedAsyncImage: View {
     ///   - url: The URL for which to create a image.
     ///   - placeholder: Placeholder to be displayed.
     ///   - image: Image to be displayed.
+    ///   - error: Error to be displayed.
     public init(
         url: String,
         placeholder: (() -> any View)? = nil,
-        image: @escaping (UIImage) -> any View
+        image: @escaping (UIImage) -> any View,
+        error: ((String) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
             wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
@@ -48,6 +52,32 @@ public struct CachedAsyncImage: View {
         self.url = url
         self.placeholder = placeholder
         self.image = image
+        self.error = error
+        
+        self.placeholderWithProgress = nil
+    }
+    
+    /// - Parameters:
+    ///   - url: The URL for which to create a image.
+    ///   - placeholder: Placeholder with progress to be displayed.
+    ///   - image: Image to be displayed.
+    ///   - error: Error to be displayed.
+    public init(
+        url: String,
+        placeholder: ((String) -> any View)? = nil,
+        image: @escaping (UIImage) -> any View,
+        error: ((String) -> any View)? = nil
+    ) {
+        _imageLoader = StateObject(
+            wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
+        )
+        
+        self.url = url
+        self.placeholderWithProgress = placeholder
+        self.image = image
+        self.error = error
+        
+        self.placeholder = nil
     }
 }
 
@@ -59,8 +89,20 @@ extension CachedAsyncImage {
         if let uiImage = imageLoader.image {
             AnyView(image(uiImage))
         } else {
-            let placeholder = placeholder ?? { Color.clear }
-            AnyView(placeholder())
+            if let error = error, let errorMessage = imageLoader.errorMessage {
+                AnyView(error(errorMessage))
+            } else {
+                if let placeholder = placeholder {
+                    AnyView(placeholder())
+                }
+                
+                if let placeholderWithProgress = placeholderWithProgress {
+                    let percentValue = Int((imageLoader.progress ?? .zero) * 100)
+                    let progress = String(percentValue)
+                    
+                    AnyView(placeholderWithProgress(progress))
+                }
+            }
         }
     }
 }
@@ -74,16 +116,38 @@ struct CachedAsyncImage_Previews: PreviewProvider {
         ZStack {
             CachedAsyncImage(
                 url: url,
-                placeholder: {
+                placeholder: { progress in
                     ZStack {
                         Color.yellow
-                        ProgressView()
+                        
+                        ProgressView() {
+                            VStack {
+                                Text("Downloading...")
+                                Text("\(progress) %")
+                            }
+                        }
                     }
                 },
                 image: {
                     Image(uiImage: $0)
                         .resizable()
                         .scaledToFit()
+                },
+                error: { error in
+                    ZStack {
+                        Color.yellow
+                        
+                        VStack {
+                            Text("Error:")
+                                .bold()
+                            
+                            Text(error)
+                        }
+                        .font(.footnote)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.red)
+                        .frame(width: 120)
+                    }
                 }
             )
         }

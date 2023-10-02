@@ -44,6 +44,7 @@ final class ImageLoaderTests: XCTestCase {
         
         // Then
         XCTAssertNotNil(imageLoader.image, "Image should be not nil.")
+        
         XCTAssertEqual(
             imageLoader.image,
             cachedImage,
@@ -70,6 +71,8 @@ final class ImageLoaderTests: XCTestCase {
             fatalError("Bad URL or nil.")
         }
         
+        XCTAssertNil(imageLoader.image, "Image should be nil.")
+        XCTAssertNil(imageLoader.progress, "Progress message should be nil.")
         XCTAssertNil(imageCache[imageUrl], "Image cache should be nil.")
         
         let expectation = XCTestExpectation(description: "Fetch image.")
@@ -85,6 +88,16 @@ final class ImageLoaderTests: XCTestCase {
                     XCTAssertNotNil(
                         imageCache[imageUrl],
                         "Image cache should be not nil."
+                    )
+                    
+                    XCTAssertNotNil(
+                        imageLoader.progress,
+                        "Progress message should be not nil."
+                    )
+                    
+                    XCTAssertNil(
+                        imageLoader.errorMessage,
+                        "Error message should be nil."
                     )
                     
                     XCTAssertFalse(

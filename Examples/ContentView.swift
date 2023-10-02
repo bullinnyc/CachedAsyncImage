@@ -37,11 +37,17 @@ struct ContentView: View {
                         ForEach(posters, id: \.self) { url in
                             CachedAsyncImage(
                                 url: url,
-                                placeholder: {
-                                    // Create any view for placeholder.
+                                placeholder: { progress in
+                                    // Create any view for placeholder (optional).
                                     ZStack {
                                         Color.yellow
-                                        ProgressView()
+                                        
+                                        ProgressView() {
+                                            VStack {
+                                                Text("Downloading...")
+                                                Text("\(progress) %")
+                                            }
+                                        }
                                     }
                                 },
                                 image: {
@@ -49,6 +55,23 @@ struct ContentView: View {
                                     Image(uiImage: $0)
                                         .resizable()
                                         .scaledToFill()
+                                },
+                                error: { error in
+                                    // Create any view for error (optional).
+                                    ZStack {
+                                        Color.yellow
+                                        
+                                        VStack {
+                                            Text("Error:")
+                                                .bold()
+                                            
+                                            Text(error)
+                                        }
+                                        .font(.footnote)
+                                        .multilineTextAlignment(.center)
+                                        .foregroundColor(.red)
+                                        .frame(width: 120)
+                                    }
                                 }
                             )
                             .frame(
@@ -68,13 +91,16 @@ struct ContentView: View {
                 }
             }
         }
-        .onAppear {
-            // Set image cache limit.
-            TemporaryImageCache.shared.setCacheLimit(
-                countLimit: 1000, // 1000 items
-                totalCostLimit: 1024 * 1024 * 200 // 200 MB
-            )
-        }
+    }
+    
+    // MARK: - Initializers
+    
+    init() {
+        // Set image cache limit.
+        TemporaryImageCache.shared.setCacheLimit(
+            countLimit: 1000, // 1000 items
+            totalCostLimit: 1024 * 1024 * 200 // 200 MB
+        )
     }
     
     // MARK: - Private Methods
