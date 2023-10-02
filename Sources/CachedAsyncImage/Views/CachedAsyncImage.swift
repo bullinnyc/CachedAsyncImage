@@ -138,15 +138,17 @@ struct CachedAsyncImage_Previews: PreviewProvider {
                         Color.yellow
                         
                         VStack {
-                            Text("Error:")
-                                .bold()
-                            
-                            Text(error)
+                            Group {
+                                Text("Error:")
+                                    .bold()
+                                
+                                Text(error)
+                            }
+                            .font(.footnote)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.red)
                         }
-                        .font(.footnote)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.red)
-                        .frame(width: 120)
+                        .padding()
                     }
                 }
             )

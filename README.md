@@ -77,15 +77,17 @@ CachedAsyncImage(
             Color.yellow
             
             VStack {
-                Text("Error:")
-                    .bold()
+                Group {
+                    Text("Error:")
+                        .bold()
 
-                Text(error)
+                    Text(error)
+                }
+                .font(.footnote)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.red)
             }
-            .font(.footnote)
-            .multilineTextAlignment(.center)
-            .foregroundColor(.red)
-            .frame(width: 120)
+            .padding()
         }
     }
 )
