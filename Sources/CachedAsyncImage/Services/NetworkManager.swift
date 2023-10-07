@@ -18,7 +18,7 @@ enum NetworkError: LocalizedError {
     case transportError(Error)
     
     // Received an bad response, e.g. non HTTP result.
-    case badResponse(String)
+    case badResponse(String = "Bad response.")
     
     var rawValue: String {
         switch self {
@@ -71,24 +71,26 @@ final class NetworkManager: NetworkManagerProtocol {
             .mapError { NetworkError.transportError($0) }
             // Handle all other errors.
             .tryMap { element in
-                let httpResponse = element.response as? HTTPURLResponse
-                let statusCode = httpResponse?.statusCode ?? .zero
+                guard let httpResponse = element
+                    .response as? HTTPURLResponse else {
+                    throw NetworkError.badResponse()
+                }
                 
                 #if DEBUG
-                if let httpResponse = httpResponse {
-                    let message = """
-                    **** CachedAsyncImage response.
-                    From: \(httpResponse.url?.absoluteString ?? "")
-                    Status code: \(statusCode)
-                    """
-                    
-                    print(message)
-                }
+                    if CachedAsyncImageConfiguration.shared.loggerLevel == .max {
+                        let message = """
+                        **** CachedAsyncImage response.
+                        Status code: \(httpResponse.statusCode),
+                        from: \(httpResponse.url?.absoluteString ?? "")
+                        """
+                        
+                        print(message.replacingOccurrences(of: "\n", with: " "))
+                    }
                 #endif
                 
-                guard statusCode == 200 else {
+                guard (200...299).contains(httpResponse.statusCode) else {
                     throw NetworkError.badResponse(
-                        "Bad response. Status code \(statusCode)"
+                        "Bad response. Status code: \(httpResponse.statusCode)"
                     )
                 }
                 

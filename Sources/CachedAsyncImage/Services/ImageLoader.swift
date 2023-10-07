@@ -69,6 +69,10 @@ final class ImageLoader: ObservableObject {
                     DispatchQueue.main.async {
                         self?.errorMessage = error.rawValue
                     }
+                    
+                    #if DEBUG
+                        print("**** CachedAsyncImage error: \(error.rawValue)")
+                    #endif
                 }
                 
                 return Just(nil).eraseToAnyPublisher()

@@ -89,19 +89,24 @@ extension CachedAsyncImage {
         if let uiImage = imageLoader.image {
             AnyView(image(uiImage))
         } else {
-            if let error = error, let errorMessage = imageLoader.errorMessage {
-                AnyView(error(errorMessage))
-            } else {
-                if let placeholder = placeholder {
-                    AnyView(placeholder())
-                }
+            errorOrPlaceholder
+        }
+    }
+    
+    @ViewBuilder
+    private var errorOrPlaceholder: some View {
+        if let error = error, let errorMessage = imageLoader.errorMessage {
+            AnyView(error(errorMessage))
+        } else {
+            if let placeholder = placeholder {
+                AnyView(placeholder())
+            }
+            
+            if let placeholderWithProgress = placeholderWithProgress {
+                let percentValue = Int((imageLoader.progress ?? .zero) * 100)
+                let progress = String(percentValue)
                 
-                if let placeholderWithProgress = placeholderWithProgress {
-                    let percentValue = Int((imageLoader.progress ?? .zero) * 100)
-                    let progress = String(percentValue)
-                    
-                    AnyView(placeholderWithProgress(progress))
-                }
+                AnyView(placeholderWithProgress(progress))
             }
         }
     }
