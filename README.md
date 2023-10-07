@@ -104,6 +104,16 @@ TemporaryImageCache.shared.setCacheLimit(
 )
 ```
 
+### Set logger if needed
+**Note:** The default logger level `min`, only error messages are logged to the Xcode console.
+
+```swift
+// Level `min`, only error messages are logged to the Xcode console.
+// Level `max`, all messages are logged to the Xcode console.
+CachedAsyncImageConfiguration.shared.setLogger(with: .max)
+```
+
+
 ## Requirements
 - iOS 14.0 +
 - [SwiftUI](https://developer.apple.com/xcode/swiftui/)
