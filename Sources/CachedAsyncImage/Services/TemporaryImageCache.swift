@@ -6,7 +6,7 @@
 //  Copyright © 2023 Dmitry Kononchuk. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
 /// Temporary image cache.
 public final class TemporaryImageCache {
@@ -19,19 +19,19 @@ public final class TemporaryImageCache {
     
     // MARK: - Private Properties
     
-    private lazy var cache: NSCache<NSURL, UIImage> = {
-        let cache = NSCache<NSURL, UIImage>()
+    private lazy var cache: NSCache<NSURL, UnifiedImage> = {
+        let cache = NSCache<NSURL, UnifiedImage>()
         return cache
     }()
     
     // MARK: - Subscripts
     
-    subscript(_ key: URL) -> UIImage? {
+    subscript(_ key: URL) -> UnifiedImage? {
         get { cache.object(forKey: key as NSURL) }
         set {
             newValue == nil
                 ? cache.removeObject(forKey: key as NSURL)
-                : cache.setObject(newValue ?? UIImage(), forKey: key as NSURL)
+                : cache.setObject(newValue ?? UnifiedImage(), forKey: key as NSURL)
         }
     }
     

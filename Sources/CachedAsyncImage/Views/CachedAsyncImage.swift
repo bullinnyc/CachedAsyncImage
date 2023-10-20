@@ -9,7 +9,7 @@
 import SwiftUI
 
 /// CachedAsyncImage view.
-public struct CachedAsyncImage: View {
+public struct CachedAsyncImage<Content:View, PlaceholderView:View, ErrorView: View>: View {
     // MARK: - Property Wrappers
     
     @StateObject private var imageLoader: ImageLoader
@@ -17,10 +17,10 @@ public struct CachedAsyncImage: View {
     // MARK: - Private Properties
     
     private let url: String
-    private let placeholder: (() -> any View)?
-    private let placeholderWithProgress: ((String) -> any View)?
-    private let image: (UIImage) -> any View
-    private let error: ((String) -> any View)?
+    private let placeholder: (() -> PlaceholderView)?
+    private let placeholderWithProgress: ((String) -> PlaceholderView)?
+    private let image: (Image) -> Content
+    private let error: ((String) -> ErrorView)?
     
     // MARK: - Body
     
@@ -41,9 +41,9 @@ public struct CachedAsyncImage: View {
     ///   - error: Error to be displayed.
     public init(
         url: String,
-        placeholder: (() -> any View)? = nil,
-        image: @escaping (UIImage) -> any View,
-        error: ((String) -> any View)? = nil
+        placeholder: (() -> PlaceholderView)? = nil,
+        image: @escaping (Image) -> Content,
+        error: ((String) -> ErrorView)? = nil
     ) {
         _imageLoader = StateObject(
             wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
@@ -64,9 +64,9 @@ public struct CachedAsyncImage: View {
     ///   - error: Error to be displayed.
     public init(
         url: String,
-        placeholder: ((String) -> any View)? = nil,
-        image: @escaping (UIImage) -> any View,
-        error: ((String) -> any View)? = nil
+        placeholder: ((String) -> PlaceholderView)? = nil,
+        image: @escaping (Image) -> Content,
+        error: ((String) -> ErrorView)? = nil
     ) {
         _imageLoader = StateObject(
             wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
@@ -86,8 +86,8 @@ public struct CachedAsyncImage: View {
 extension CachedAsyncImage {
     @ViewBuilder
     private var content: some View {
-        if let uiImage = imageLoader.image {
-            AnyView(image(uiImage))
+        if let unifiedImage = imageLoader.image {
+            image(Image(unifiedImage: unifiedImage))
         } else {
             errorOrPlaceholder
         }
@@ -96,17 +96,17 @@ extension CachedAsyncImage {
     @ViewBuilder
     private var errorOrPlaceholder: some View {
         if let error = error, let errorMessage = imageLoader.errorMessage {
-            AnyView(error(errorMessage))
+            error(errorMessage)
         } else {
             if let placeholder = placeholder {
-                AnyView(placeholder())
+                placeholder()
             }
             
             if let placeholderWithProgress = placeholderWithProgress {
                 let percentValue = Int((imageLoader.progress ?? .zero) * 100)
                 let progress = String(percentValue)
                 
-                AnyView(placeholderWithProgress(progress))
+                placeholderWithProgress(progress)
             }
         }
     }
@@ -133,8 +133,8 @@ struct CachedAsyncImage_Previews: PreviewProvider {
                         }
                     }
                 },
-                image: {
-                    Image(uiImage: $0)
+                image: { image in
+                    image
                         .resizable()
                         .scaledToFit()
                 },
@@ -157,6 +157,7 @@ struct CachedAsyncImage_Previews: PreviewProvider {
                     }
                 }
             )
+            
         }
     }
 }
