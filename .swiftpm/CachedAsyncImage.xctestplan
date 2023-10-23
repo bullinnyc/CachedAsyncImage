@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "E45F0232-EFE9-4D85-9212-2CDCA2411611",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "CachedAsyncImageTests",
+        "name" : "CachedAsyncImageTests"
+      }
+    }
+  ],
+  "version" : 1
+}
