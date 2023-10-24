@@ -7,12 +7,12 @@
 //
 
 import Combine
-import UIKit
+import Foundation
 
 final class ImageLoader: ObservableObject {
     // MARK: - Property Wrappers
     
-    @Published var image: UIImage?
+    @Published var image: UnifiedImage?
     @Published var progress: Double?
     @Published var errorMessage: String?
     
@@ -63,8 +63,8 @@ final class ImageLoader: ObservableObject {
             .store(in: &cancellables)
         
         data
-            .map { UIImage(data: $0) }
-            .catch { [weak self] error -> AnyPublisher<UIImage?, Never> in
+            .map { UnifiedImage(data: $0) }
+            .catch { [weak self] error -> AnyPublisher<UnifiedImage?, Never> in
                 if let error = error as? NetworkError {
                     DispatchQueue.main.async {
                         self?.errorMessage = error.rawValue
@@ -109,7 +109,7 @@ final class ImageLoader: ObservableObject {
         isLoading = false
     }
     
-    private func cache(url: URL?, image: UIImage?) {
+    private func cache(url: URL?, image: UnifiedImage?) {
         guard let url = url else { return }
         image.map { imageCache[url] = $0 }
     }
