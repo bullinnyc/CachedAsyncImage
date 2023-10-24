@@ -18,7 +18,7 @@ enum NetworkError: LocalizedError {
     case transportError(Error)
     
     // Received an bad response, e.g. non HTTP result.
-    case badResponse(String = "Bad response.")
+    case badResponse(String)
     
     var rawValue: String {
         switch self {
@@ -71,24 +71,8 @@ final class NetworkManager: NetworkManagerProtocol {
             .mapError { NetworkError.transportError($0) }
             // Handle all other errors.
             .tryMap { element in
-                guard let httpResponse = element
-                    .response as? HTTPURLResponse else {
-                    throw NetworkError.badResponse()
-                }
-                
-                #if DEBUG
-                    if CachedAsyncImageConfiguration.shared.loggerLevel == .max {
-                        let message = """
-                        **** CachedAsyncImage response.
-                        Status code: \(httpResponse.statusCode),
-                        from: \(httpResponse.url?.absoluteString ?? "")
-                        """
-                        
-                        print(message.replacingOccurrences(of: "\n", with: " "))
-                    }
-                #endif
-                
-                guard (200...299).contains(httpResponse.statusCode) else {
+                if let httpResponse = element.response as? HTTPURLResponse,
+                   !(200...299).contains(httpResponse.statusCode) {
                     throw NetworkError.badResponse(
                         "Bad response. Status code: \(httpResponse.statusCode)"
                     )
