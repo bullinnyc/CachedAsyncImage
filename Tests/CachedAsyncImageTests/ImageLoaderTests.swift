@@ -15,13 +15,13 @@ final class ImageLoaderTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-
+        
         sut = makeSUT()
     }
     
     override func tearDown() {
         sut = nil
-
+        
         super.tearDown()
     }
     

@@ -36,6 +36,27 @@ public struct CachedAsyncImage: View {
     
     /// - Parameters:
     ///   - url: The URL for which to create a image.
+    ///   - image: Image to be displayed.
+    ///   - error: Error to be displayed.
+    public init(
+        url: String,
+        image: @escaping (UIImage) -> any View,
+        error: ((String) -> any View)? = nil
+    ) {
+        _imageLoader = StateObject(
+            wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
+        )
+        
+        self.url = url
+        self.image = image
+        self.error = error
+        
+        self.placeholder = nil
+        self.placeholderWithProgress = nil
+    }
+    
+    /// - Parameters:
+    ///   - url: The URL for which to create a image.
     ///   - placeholder: Placeholder to be displayed.
     ///   - image: Image to be displayed.
     ///   - error: Error to be displayed.
