@@ -105,12 +105,13 @@ public struct CachedAsyncImage: View {
 // MARK: - Ext. Configure views
 
 extension CachedAsyncImage {
-    @ViewBuilder
     private var content: some View {
-        if let uiImage = imageLoader.image {
-            AnyView(image(uiImage))
-        } else {
-            errorOrPlaceholder
+        ZStack {
+            if let uiImage = imageLoader.image {
+                AnyView(image(uiImage))
+            } else {
+                errorOrPlaceholder
+            }
         }
     }
     
@@ -136,48 +137,115 @@ extension CachedAsyncImage {
 // MARK: - Preview Provider
 
 struct CachedAsyncImage_Previews: PreviewProvider {
+    static var placeholder: some View {
+        ZStack {
+            Color.yellow
+            ProgressView()
+        }
+    }
+    
+    static func placeholderWithProgress(_ progress: String) -> some View {
+        ZStack {
+            Color.yellow
+            
+            ProgressView() {
+                VStack {
+                    Text("Downloading...")
+                    Text("\(progress) %")
+                }
+            }
+        }
+    }
+    
+    static func image(_ image: UIImage) -> some View {
+        Image(uiImage: image)
+            .resizable()
+            .scaledToFit()
+    }
+    
+    static func error(_ error: String) -> some View {
+        ZStack {
+            Color.yellow
+            
+            VStack {
+                Group {
+                    Text("Error:")
+                        .bold()
+                    
+                    Text(error)
+                }
+                .font(.footnote)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.red)
+            }
+            .padding()
+        }
+    }
+    
     static var previews: some View {
         let url = "https://image.tmdb.org/t/p/w1280/7lyBcpYB0Qt8gYhXYaEZUNlNQAv.jpg"
         
-        ZStack {
-            CachedAsyncImage(
-                url: url,
-                placeholder: { progress in
-                    ZStack {
-                        Color.yellow
-                        
-                        ProgressView() {
-                            VStack {
-                                Text("Downloading...")
-                                Text("\(progress) %")
-                            }
-                        }
-                    }
-                },
-                image: {
-                    Image(uiImage: $0)
-                        .resizable()
-                        .scaledToFit()
-                },
-                error: { error in
-                    ZStack {
-                        Color.yellow
-                        
-                        VStack {
-                            Group {
-                                Text("Error:")
-                                    .bold()
-                                
-                                Text(error)
-                            }
-                            .font(.footnote)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.red)
-                        }
-                        .padding()
-                    }
-                }
-            )
-        }
+        CachedAsyncImage(
+            url: url,
+            image: {
+                image($0)
+            }
+        )
+        
+        CachedAsyncImage(
+            url: url,
+            placeholder: {
+                placeholder
+            },
+            image: {
+                image($0)
+            }
+        )
+        
+        CachedAsyncImage(
+            url: url,
+            placeholder: {
+                placeholderWithProgress($0)
+            },
+            image: {
+                image($0)
+            }
+        )
+        
+        CachedAsyncImage(
+            url: url,
+            image: {
+                image($0)
+            },
+            error: {
+                error($0)
+            }
+        )
+        
+        CachedAsyncImage(
+            url: url,
+            placeholder: {
+                placeholder
+            },
+            image: {
+                image($0)
+            },
+            error: {
+                error($0)
+            }
+        )
+        
+        CachedAsyncImage(
+            url: url,
+            placeholder: {
+                placeholderWithProgress($0)
+            },
+            image: {
+                image($0)
+            },
+            error: {
+                error($0)
+            }
+        )
     }
 }
