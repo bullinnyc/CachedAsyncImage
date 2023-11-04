@@ -6,13 +6,13 @@
 //  Copyright © 2023 Dmitry Kononchuk. All rights reserved.
 //
 
+import Foundation
 import Combine
-import UIKit
 
 final class ImageLoader: ObservableObject {
     // MARK: - Property Wrappers
     
-    @Published var image: UIImage?
+    @Published var image: CPImage?
     @Published var progress: Double?
     @Published var errorMessage: String?
     
@@ -63,15 +63,15 @@ final class ImageLoader: ObservableObject {
             .store(in: &cancellables)
         
         data
-            .map { UIImage(data: $0) }
-            .catch { [weak self] error -> AnyPublisher<UIImage?, Never> in
+            .map { CPImage(data: $0) }
+            .catch { [weak self] error -> AnyPublisher<CPImage?, Never> in
                 if let error = error as? NetworkError {
                     DispatchQueue.main.async {
                         self?.errorMessage = error.rawValue
                     }
                     
                     #if DEBUG
-                        print("**** CachedAsyncImage error: \(error.rawValue)")
+                    print("**** CachedAsyncImage error: \(error.rawValue)")
                     #endif
                 }
                 
@@ -109,7 +109,7 @@ final class ImageLoader: ObservableObject {
         isLoading = false
     }
     
-    private func cache(url: URL?, image: UIImage?) {
+    private func cache(url: URL?, image: CPImage?) {
         guard let url = url else { return }
         image.map { imageCache[url] = $0 }
     }

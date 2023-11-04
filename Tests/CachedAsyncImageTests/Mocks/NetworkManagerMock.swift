@@ -32,7 +32,7 @@ final class NetworkManagerMock: NetworkManagerProtocol {
         
         let image = RM.image("backToTheFuture")
         
-        guard let imageData = image?.pngData() else {
+        guard let imageData = image?.data else {
             fatalError("Unable to get data.")
         }
         
