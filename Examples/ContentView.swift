@@ -6,7 +6,6 @@
 //  Copyright © 2023 Dmitry Kononchuk. All rights reserved.
 //
 
-#if os(iOS)
 import SwiftUI
 import CachedAsyncImage
 
@@ -52,7 +51,7 @@ struct ContentView: View {
                                 },
                                 image: {
                                     // Customize image.
-                                    Image(uiImage: $0)
+                                    Image(cpImage: $0)
                                         .resizable()
                                         .scaledToFill()
                                 },
@@ -93,6 +92,9 @@ struct ContentView: View {
                 }
             }
         }
+        #if os(macOS)
+        .frame(width: 300, height: 450)
+        #endif
     }
     
     // MARK: - Initializers
@@ -123,4 +125,3 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
-#endif

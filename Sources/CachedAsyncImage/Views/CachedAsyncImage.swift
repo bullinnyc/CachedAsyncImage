@@ -19,17 +19,23 @@ public struct CachedAsyncImage: View {
     private let url: String
     private let placeholder: (() -> any View)?
     private let placeholderWithProgress: ((String) -> any View)?
-    private let image: (UIImage) -> any View
+    private let image: (CPImage) -> any View
     private let error: ((String) -> any View)?
     
     // MARK: - Body
     
     public var body: some View {
-        content
-            .onChange(of: url, perform: { imageLoader.fetchImage(from: $0) })
-            .onAppear {
-                imageLoader.fetchImage(from: url)
+        ZStack {
+            if let uiImage = imageLoader.image {
+                AnyView(image(uiImage))
+            } else {
+                errorOrPlaceholder
             }
+        }
+        .onChange(of: url, perform: { imageLoader.fetchImage(from: $0) })
+        .onAppear {
+            imageLoader.fetchImage(from: url)
+        }
     }
     
     // MARK: - Initializers
@@ -40,7 +46,7 @@ public struct CachedAsyncImage: View {
     ///   - error: Error to be displayed.
     public init(
         url: String,
-        image: @escaping (UIImage) -> any View,
+        image: @escaping (CPImage) -> any View,
         error: ((String) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
@@ -63,7 +69,7 @@ public struct CachedAsyncImage: View {
     public init(
         url: String,
         placeholder: (() -> any View)? = nil,
-        image: @escaping (UIImage) -> any View,
+        image: @escaping (CPImage) -> any View,
         error: ((String) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
@@ -86,7 +92,7 @@ public struct CachedAsyncImage: View {
     public init(
         url: String,
         placeholder: ((String) -> any View)? = nil,
-        image: @escaping (UIImage) -> any View,
+        image: @escaping (CPImage) -> any View,
         error: ((String) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
@@ -105,16 +111,6 @@ public struct CachedAsyncImage: View {
 // MARK: - Ext. Configure views
 
 extension CachedAsyncImage {
-    private var content: some View {
-        ZStack {
-            if let uiImage = imageLoader.image {
-                AnyView(image(uiImage))
-            } else {
-                errorOrPlaceholder
-            }
-        }
-    }
-    
     @ViewBuilder
     private var errorOrPlaceholder: some View {
         if let error = error, let errorMessage = imageLoader.errorMessage {
@@ -157,8 +153,8 @@ struct CachedAsyncImage_Previews: PreviewProvider {
         }
     }
     
-    static func image(_ image: UIImage) -> some View {
-        Image(uiImage: image)
+    static func image(_ image: CPImage) -> some View {
+        Image(cpImage: image)
             .resizable()
             .scaledToFit()
     }
@@ -185,67 +181,72 @@ struct CachedAsyncImage_Previews: PreviewProvider {
     static var previews: some View {
         let url = "https://image.tmdb.org/t/p/w1280/7lyBcpYB0Qt8gYhXYaEZUNlNQAv.jpg"
         
-        CachedAsyncImage(
-            url: url,
-            image: {
-                image($0)
-            }
-        )
-        
-        CachedAsyncImage(
-            url: url,
-            placeholder: {
-                placeholder
-            },
-            image: {
-                image($0)
-            }
-        )
-        
-        CachedAsyncImage(
-            url: url,
-            placeholder: {
-                placeholderWithProgress($0)
-            },
-            image: {
-                image($0)
-            }
-        )
-        
-        CachedAsyncImage(
-            url: url,
-            image: {
-                image($0)
-            },
-            error: {
-                error($0)
-            }
-        )
-        
-        CachedAsyncImage(
-            url: url,
-            placeholder: {
-                placeholder
-            },
-            image: {
-                image($0)
-            },
-            error: {
-                error($0)
-            }
-        )
-        
-        CachedAsyncImage(
-            url: url,
-            placeholder: {
-                placeholderWithProgress($0)
-            },
-            image: {
-                image($0)
-            },
-            error: {
-                error($0)
-            }
-        )
+        Group {
+            CachedAsyncImage(
+                url: url,
+                image: {
+                    image($0)
+                }
+            )
+            
+            CachedAsyncImage(
+                url: url,
+                placeholder: {
+                    placeholder
+                },
+                image: {
+                    image($0)
+                }
+            )
+            
+            CachedAsyncImage(
+                url: url,
+                placeholder: {
+                    placeholderWithProgress($0)
+                },
+                image: {
+                    image($0)
+                }
+            )
+            
+            CachedAsyncImage(
+                url: url,
+                image: {
+                    image($0)
+                },
+                error: {
+                    error($0)
+                }
+            )
+            
+            CachedAsyncImage(
+                url: url,
+                placeholder: {
+                    placeholder
+                },
+                image: {
+                    image($0)
+                },
+                error: {
+                    error($0)
+                }
+            )
+            
+            CachedAsyncImage(
+                url: url,
+                placeholder: {
+                    placeholderWithProgress($0)
+                },
+                image: {
+                    image($0)
+                },
+                error: {
+                    error($0)
+                }
+            )
+        }
+        #if os(macOS)
+        .frame(width: 300, height: 450)
+        #endif
     }
 }
