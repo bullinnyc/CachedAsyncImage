@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        xcode: ['14.3']
+        xcode: ['15.0.1']
         macos: ['macos-13']
         scheme: ['CachedAsyncImage']
         command: ['test']

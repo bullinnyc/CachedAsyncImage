@@ -32,7 +32,9 @@ public struct CachedAsyncImage: View {
                 errorOrPlaceholder
             }
         }
-        .onChange(of: url, perform: { imageLoader.fetchImage(from: $0) })
+        .onChange(of: url) { _, newValue in
+            imageLoader.fetchImage(from: newValue)
+        }
         .onAppear {
             imageLoader.fetchImage(from: url)
         }
@@ -57,8 +59,8 @@ public struct CachedAsyncImage: View {
         self.image = image
         self.error = error
         
-        self.placeholder = nil
-        self.placeholderWithProgress = nil
+        placeholder = nil
+        placeholderWithProgress = nil
     }
     
     /// - Parameters:
@@ -81,7 +83,7 @@ public struct CachedAsyncImage: View {
         self.image = image
         self.error = error
         
-        self.placeholderWithProgress = nil
+        placeholderWithProgress = nil
     }
     
     /// - Parameters:
@@ -100,11 +102,11 @@ public struct CachedAsyncImage: View {
         )
         
         self.url = url
-        self.placeholderWithProgress = placeholder
+        self.placeholder = nil
         self.image = image
         self.error = error
         
-        self.placeholder = nil
+        placeholderWithProgress = placeholder
     }
 }
 
@@ -173,23 +175,13 @@ struct CachedAsyncImage_Previews: PreviewProvider {
                 .font(.footnote)
                 .multilineTextAlignment(.center)
                 .conditional { view in
-                    #if os(iOS)
-                    if #available(iOS 15.0, *) {
+                    if #available(iOS 15.0, macOS 12.0, *) {
                         view
                             .foregroundStyle(.red)
                     } else {
                         view
                             .foregroundColor(.red)
                     }
-                    #elseif os(macOS)
-                    if #available(macOS 12.0, *) {
-                        view
-                            .foregroundStyle(.red)
-                    } else {
-                        view
-                            .foregroundColor(.red)
-                    }
-                    #endif
                 }
             }
             .padding()
