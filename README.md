@@ -85,7 +85,7 @@ CachedAsyncImage(
                 }
                 .font(.footnote)
                 .multilineTextAlignment(.center)
-                .foregroundColor(.red)
+                .foregroundStyle(.red)
             }
             .padding()
         }
@@ -93,7 +93,7 @@ CachedAsyncImage(
 )
 ```
 
-### Set image cache limit (optional)
+### Set image cache limit if needed
 **Note:** The default value is `0`, e.g. is no count limit and is no total cost limit.
 
 ```swift

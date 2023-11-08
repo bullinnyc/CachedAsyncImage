@@ -9,6 +9,7 @@
 import SwiftUI
 import CachedAsyncImage
 
+@available(iOS 15.0, macOS 12.0, *)
 struct ContentView: View {
     // MARK: - Private Properties
     
@@ -69,7 +70,7 @@ struct ContentView: View {
                                             }
                                             .font(.footnote)
                                             .multilineTextAlignment(.center)
-                                            .foregroundColor(.red)
+                                            .foregroundStyle(.red)
                                         }
                                         .padding()
                                     }
@@ -120,6 +121,7 @@ struct ContentView: View {
 
 // MARK: - Preview Provider
 
+@available(iOS 15.0, macOS 12.0, *)
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()

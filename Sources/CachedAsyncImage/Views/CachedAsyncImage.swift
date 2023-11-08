@@ -172,7 +172,25 @@ struct CachedAsyncImage_Previews: PreviewProvider {
                 }
                 .font(.footnote)
                 .multilineTextAlignment(.center)
-                .foregroundColor(.red)
+                .conditional { view in
+                    #if os(iOS)
+                    if #available(iOS 15.0, *) {
+                        view
+                            .foregroundStyle(.red)
+                    } else {
+                        view
+                            .foregroundColor(.red)
+                    }
+                    #elseif os(macOS)
+                    if #available(macOS 12.0, *) {
+                        view
+                            .foregroundStyle(.red)
+                    } else {
+                        view
+                            .foregroundColor(.red)
+                    }
+                    #endif
+                }
             }
             .padding()
         }
