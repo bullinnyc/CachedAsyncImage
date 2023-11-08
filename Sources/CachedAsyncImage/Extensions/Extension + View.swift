@@ -25,7 +25,7 @@ extension View {
     /// - Parameter transform: The transform to apply to the source `View`.
     ///
     /// - Returns: Either the original `View` or the modified `View`.
-    public func conditional<Content: View>(
+    func conditional<Content: View>(
         @ViewBuilder transform: (Self) -> Content
     ) -> Content {
         transform(self)

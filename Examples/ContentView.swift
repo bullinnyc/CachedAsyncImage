@@ -9,6 +9,7 @@
 import SwiftUI
 import CachedAsyncImage
 
+@available(iOS 15.0, macOS 12.0, *)
 struct ContentView: View {
     // MARK: - Private Properties
     
@@ -69,25 +70,7 @@ struct ContentView: View {
                                             }
                                             .font(.footnote)
                                             .multilineTextAlignment(.center)
-                                            .conditional { view in
-                                                #if os(iOS)
-                                                if #available(iOS 15.0, *) {
-                                                    view
-                                                        .foregroundStyle(.red)
-                                                } else {
-                                                    view
-                                                        .foregroundColor(.red)
-                                                }
-                                                #elseif os(macOS)
-                                                if #available(macOS 12.0, *) {
-                                                    view
-                                                        .foregroundStyle(.red)
-                                                } else {
-                                                    view
-                                                        .foregroundColor(.red)
-                                                }
-                                                #endif
-                                            }
+                                            .foregroundStyle(.red)
                                         }
                                         .padding()
                                     }
@@ -138,6 +121,7 @@ struct ContentView: View {
 
 // MARK: - Preview Provider
 
+@available(iOS 15.0, macOS 12.0, *)
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
