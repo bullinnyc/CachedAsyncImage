@@ -14,12 +14,12 @@ extension View {
     /// Used, e.g. to use the if #available statement.
     ///
     ///     .conditional { view in
-    ///         if #available(iOS 16.0, *) {
+    ///         if #available(iOS 15.0, macOS 12.0, *) {
     ///             view
-    ///                 .tint(cursorColor)
+    ///                 .foregroundStyle(.red)
     ///         } else {
     ///             view
-    ///                 .accentColor(cursorColor)
+    ///                 .foregroundColor(.red)
     ///         }
     ///
     /// - Parameter transform: The transform to apply to the source `View`.

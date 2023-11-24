@@ -85,7 +85,7 @@ struct ContentView: View {
                                     )
                             )
                             .clipped()
-                            .cornerRadius(20)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
                             .padding([.leading, .trailing], Self.paddingStandart)
                         }
                     }
