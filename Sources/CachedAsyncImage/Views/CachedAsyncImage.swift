@@ -53,7 +53,7 @@ public struct CachedAsyncImage: View {
     ) {
         _imageLoader = StateObject(
             wrappedValue: ImageLoader(
-                networkManager: NetworkManager.shared,
+                networkManager: Environment(\.networkManager).wrappedValue,
                 imageCache: CachedAsyncImage.getImageCache()
             )
         )
@@ -79,7 +79,7 @@ public struct CachedAsyncImage: View {
     ) {
         _imageLoader = StateObject(
             wrappedValue: ImageLoader(
-                networkManager: NetworkManager.shared,
+                networkManager: Environment(\.networkManager).wrappedValue,
                 imageCache: CachedAsyncImage.getImageCache()
             )
         )
@@ -105,7 +105,7 @@ public struct CachedAsyncImage: View {
     ) {
         _imageLoader = StateObject(
             wrappedValue: ImageLoader(
-                networkManager: NetworkManager.shared,
+                networkManager: Environment(\.networkManager).wrappedValue,
                 imageCache: CachedAsyncImage.getImageCache()
             )
         )

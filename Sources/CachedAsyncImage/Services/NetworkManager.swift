@@ -39,15 +39,7 @@ protocol NetworkManagerProtocol {
     )
 }
 
-final class NetworkManager: NetworkManagerProtocol {
-    // MARK: - Public Properties
-    
-    static let shared = NetworkManager()
-    
-    // MARK: - Private Initializers
-    
-    private init() {}
-    
+struct NetworkManager: NetworkManagerProtocol {
     // MARK: - Public Methods
     
     func fetchImage(from url: URL?) -> (

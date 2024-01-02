@@ -3,7 +3,7 @@
 //  CachedAsyncImage
 //
 //  Created by Dmitry Kononchuk on 02.01.2024.
-//  Copyright © 2023 Dmitry Kononchuk. All rights reserved.
+//  Copyright © 2024 Dmitry Kononchuk. All rights reserved.
 //
 
 import Foundation
