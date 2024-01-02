@@ -102,7 +102,7 @@ struct ContentView: View {
     
     init() {
         // Set image cache limit.
-        TemporaryImageCache.shared.setCacheLimit(
+        Environment(\.imageCache).wrappedValue.setCacheLimit(
             countLimit: 1000, // 1000 items
             totalCostLimit: 1024 * 1024 * 200 // 200 MB
         )

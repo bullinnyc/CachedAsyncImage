@@ -52,7 +52,10 @@ public struct CachedAsyncImage: View {
         error: ((String) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
-            wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
+            wrappedValue: ImageLoader(
+                networkManager: NetworkManager.shared,
+                imageCache: CachedAsyncImage.getImageCache()
+            )
         )
         
         self.url = url
@@ -75,7 +78,10 @@ public struct CachedAsyncImage: View {
         error: ((String) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
-            wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
+            wrappedValue: ImageLoader(
+                networkManager: NetworkManager.shared,
+                imageCache: CachedAsyncImage.getImageCache()
+            )
         )
         
         self.url = url
@@ -98,7 +104,10 @@ public struct CachedAsyncImage: View {
         error: ((String) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
-            wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
+            wrappedValue: ImageLoader(
+                networkManager: NetworkManager.shared,
+                imageCache: CachedAsyncImage.getImageCache()
+            )
         )
         
         self.url = url
@@ -107,6 +116,17 @@ public struct CachedAsyncImage: View {
         self.error = error
         
         placeholderWithProgress = placeholder
+    }
+    
+    // MARK: - Private Methods
+    
+    /// Will be removed in future versions.
+    private static func getImageCache() -> ImageCache {
+        if isTemporaryImageCacheInitialized {
+            TemporaryImageCache.shared
+        } else {
+            Environment(\.imageCache).wrappedValue
+        }
     }
 }
 

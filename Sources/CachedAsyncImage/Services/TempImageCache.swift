@@ -1,30 +1,35 @@
 //
-//  TemporaryImageCache.swift
+//  TempImageCache.swift
 //  CachedAsyncImage
 //
-//  Created by Dmitry Kononchuk on 15.06.2023.
+//  Created by Dmitry Kononchuk on 02.01.2024.
 //  Copyright © 2023 Dmitry Kononchuk. All rights reserved.
 //
 
 import Foundation
 
-/// Will be removed in future versions.
-var isTemporaryImageCacheInitialized = false
+/// Image cache protocol.
+public protocol ImageCache {
+    subscript(_ url: URL) -> CPImage? { get set }
+    
+    /// Set cache limit.
+    ///
+    /// - Parameters:
+    ///   - countLimit: The maximum number of objects the cache should hold.
+    ///   If `0`, there is no count limit. The default value is `0`.
+    ///   - totalCostLimit: The maximum total cost that the cache can hold before
+    ///   it starts evicting objects.
+    ///   When you add an object to the cache, you may pass in a specified cost for the object,
+    ///   such as the size in bytes of the object.
+    ///   If `0`, there is no total cost limit. The default value is `0`.
+    func setCacheLimit(countLimit: Int, totalCostLimit: Int)
+    
+    /// Empties the cache.
+    func removeCache()
+}
 
 /// Temporary image cache.
-@available(
-    *,
-    deprecated,
-    message: "Will be removed in future versions. Use Environment with key path 'imageCache' property."
-)
-public final class TemporaryImageCache: ImageCache {
-    // MARK: - Public Properties
-    
-    /// The singleton instance.
-    ///
-    /// - Returns: The singleton `TemporaryImageCache` instance.
-    public static let shared = TemporaryImageCache()
-    
+struct TempImageCache: ImageCache {
     // MARK: - Private Properties
     
     private let cache: NSCache<NSURL, CPImage> = {
@@ -41,12 +46,6 @@ public final class TemporaryImageCache: ImageCache {
                 ? cache.removeObject(forKey: key as NSURL)
                 : cache.setObject(newValue ?? CPImage(), forKey: key as NSURL)
         }
-    }
-    
-    // MARK: - Private Initializers
-    
-    private init() {
-        isTemporaryImageCacheInitialized = true
     }
     
     // MARK: - Public Methods

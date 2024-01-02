@@ -97,11 +97,13 @@ CachedAsyncImage(
 **Note:** The default value is `0`, e.g. is no count limit and is no total cost limit.
 
 ```swift
-// Set image cache limit.
-TemporaryImageCache.shared.setCacheLimit(
-    countLimit: 1000, // 1000 items
-    totalCostLimit: 1024 * 1024 * 200 // 200 MB
-)
+init() {
+    // Set image cache limit.
+    Environment(\.imageCache).wrappedValue.setCacheLimit(
+        countLimit: 1000, // 1000 items
+        totalCostLimit: 1024 * 1024 * 200 // 200 MB
+    )
+}
 ```
 
 ## Requirements

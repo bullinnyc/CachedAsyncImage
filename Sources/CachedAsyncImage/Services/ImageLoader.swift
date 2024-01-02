@@ -19,7 +19,7 @@ final class ImageLoader: ObservableObject {
     // MARK: - Private Properties
     
     private let networkManager: NetworkManagerProtocol
-    private let imageCache = TemporaryImageCache.shared
+    private var imageCache: ImageCache
     
     private var cancellables: Set<AnyCancellable> = []
     private(set) var isLoading = false
@@ -30,8 +30,9 @@ final class ImageLoader: ObservableObject {
     
     // MARK: - Initializers
     
-    init(networkManager: NetworkManagerProtocol) {
+    init(networkManager: NetworkManagerProtocol, imageCache: ImageCache) {
         self.networkManager = networkManager
+        self.imageCache = imageCache
     }
     
     // MARK: - Deinitializers
