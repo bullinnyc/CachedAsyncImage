@@ -2,8 +2,8 @@
 //  EnvironmentValues + ImageCache.swift
 //  CachedAsyncImage
 //
-//  Created by Dmitry Kononchuk on 26.11.2023.
-//  Copyright © 2023 Dmitry Kononchuk. All rights reserved.
+//  Created by Dmitry Kononchuk on 02.01.2024.
+//  Copyright © 2024 Dmitry Kononchuk. All rights reserved.
 //
 
 import SwiftUI
@@ -11,9 +11,7 @@ import SwiftUI
 struct ImageCacheKey: EnvironmentKey {
     // MARK: - Public Properties
     
-    static var defaultValue: ImageCache {
-        TempImageCache()
-    }
+    static let defaultValue: ImageCache = TempImageCache()
 }
 
 extension EnvironmentValues {
