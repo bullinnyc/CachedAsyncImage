@@ -104,6 +104,10 @@ final class ImageLoader: ObservableObject {
     
     private func start() {
         isLoading = true
+        
+        Task { @MainActor [weak self] in
+            self?.errorMessage = nil
+        }
     }
     
     private func finish() {
