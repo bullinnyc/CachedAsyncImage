@@ -106,6 +106,16 @@ init() {
 }
 ```
 
+### You can also read this value from within a view to access the image cache management
+
+```swift
+struct MyView: View {
+    @ImageCache private var imageCache
+
+    // ...
+}
+```
+
 ## Requirements
 - iOS 14.0 +
 - [SwiftUI](https://developer.apple.com/xcode/swiftui/)

@@ -8,10 +8,21 @@
 
 import Foundation
 
+/// A property wrapper type that reflects a value from `TemporaryImageCache`.
+///
+/// Read this value from within a view to access the image cache management.
+///
+///     struct MyView: View {
+///         @ImageCache private var imageCache
+///
+///         // ...
+///     }
+///
 @propertyWrapper
 public struct ImageCache {
     // MARK: - Public Properties
     
+    /// The wrapped value property provides primary access to the value’s data.
     public var wrappedValue: ImageCacheProtocol {
         get { storage.imageCache }
         nonmutating set { storage.imageCache = newValue }
@@ -19,7 +30,7 @@ public struct ImageCache {
     
     // MARK: - Private Properties
     
-    private var storage: FeatureStorage
+    private let storage: FeatureStorage
     
     // MARK: - Initializers
     

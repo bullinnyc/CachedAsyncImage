@@ -67,9 +67,7 @@ final class ImageLoader: ObservableObject {
             .map { CPImage(data: $0) }
             .catch { [weak self] error -> AnyPublisher<CPImage?, Never> in
                 if let error = error as? NetworkError {
-                    DispatchQueue.main.async {
-                        self?.errorMessage = error.rawValue
-                    }
+                    self?.errorMessage(with: error.rawValue)
                     
                     #if DEBUG
                     print("**** CachedAsyncImage error: \(error.rawValue)")
@@ -104,14 +102,15 @@ final class ImageLoader: ObservableObject {
     
     private func start() {
         isLoading = true
-        
-        Task { @MainActor [weak self] in
-            self?.errorMessage = nil
-        }
+        errorMessage(with: nil)
     }
     
     private func finish() {
         isLoading = false
+    }
+    
+    private func cancel() {
+        cancellables.forEach { $0.cancel() }
     }
     
     private func cache(url: URL?, image: CPImage?) {
@@ -119,7 +118,9 @@ final class ImageLoader: ObservableObject {
         image.map { imageCache[url] = $0 }
     }
     
-    private func cancel() {
-        cancellables.forEach { $0.cancel() }
+    private func errorMessage(with text: String?) {
+        Task { @MainActor [weak self] in
+            self?.errorMessage = text
+        }
     }
 }

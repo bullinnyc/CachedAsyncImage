@@ -19,7 +19,7 @@ struct Network {
     
     // MARK: - Private Properties
     
-    private var storage: FeatureStorage
+    private let storage: FeatureStorage
     
     // MARK: - Initializers
     

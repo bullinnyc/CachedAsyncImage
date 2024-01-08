@@ -28,7 +28,6 @@ public protocol ImageCacheProtocol {
     func removeCache()
 }
 
-/// Temporary image cache.
 struct TemporaryImageCache: ImageCacheProtocol {
     // MARK: - Private Properties
     
@@ -39,7 +38,7 @@ struct TemporaryImageCache: ImageCacheProtocol {
     
     // MARK: - Subscripts
     
-    public subscript(_ key: URL) -> CPImage? {
+    subscript(_ key: URL) -> CPImage? {
         get { cache.object(forKey: key as NSURL) }
         set {
             newValue == nil
@@ -50,12 +49,12 @@ struct TemporaryImageCache: ImageCacheProtocol {
     
     // MARK: - Public Methods
     
-    public func setCacheLimit(countLimit: Int = 0, totalCostLimit: Int = 0) {
+    func setCacheLimit(countLimit: Int = 0, totalCostLimit: Int = 0) {
         cache.countLimit = countLimit
         cache.totalCostLimit = totalCostLimit
     }
     
-    public func removeCache() {
+    func removeCache() {
         cache.removeAllObjects()
     }
 }
