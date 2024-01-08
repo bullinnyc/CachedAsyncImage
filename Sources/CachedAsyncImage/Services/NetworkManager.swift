@@ -32,22 +32,14 @@ enum NetworkError: LocalizedError {
     }
 }
 
-protocol NetworkManagerProtocol {
+protocol NetworkProtocol {
     func fetchImage(from url: URL?) -> (
         progress: Progress?,
         publisher: AnyPublisher<Data, Error>
     )
 }
 
-final class NetworkManager: NetworkManagerProtocol {
-    // MARK: - Public Properties
-    
-    static let shared = NetworkManager()
-    
-    // MARK: - Private Initializers
-    
-    private init() {}
-    
+struct NetworkManager: NetworkProtocol {
     // MARK: - Public Methods
     
     func fetchImage(from url: URL?) -> (

@@ -28,11 +28,14 @@ final class ImageLoaderTests: XCTestCase {
     func testFetchImage_WithCachedImage() {
         // Given
         let url = "https://example.com/image.jpg"
-        let networkManager = sut.networkManager
-        let imageCache = sut.imageCache
         let cachedImage = RM.image("backToTheFuture")
+        var imageCache = sut.imageCache
+        let networkManager = sut.networkManager
         
-        let imageLoader = ImageLoader(networkManager: networkManager)
+        let imageLoader = ImageLoader(
+            imageCache: imageCache,
+            networkManager: networkManager
+        )
         
         // When
         guard let imageUrl = URL(string: url) else {
@@ -57,11 +60,15 @@ final class ImageLoaderTests: XCTestCase {
     func testFetchImage_WithoutCachedImage() {
         // Given
         let url = "https://example.com/image.jpg"
-        let networkManager = sut.networkManager
         let imageCache = sut.imageCache
+        let networkManager = sut.networkManager
+        
         imageCache.removeCache()
         
-        let imageLoader = ImageLoader(networkManager: networkManager)
+        let imageLoader = ImageLoader(
+            imageCache: imageCache,
+            networkManager: networkManager
+        )
         
         // When
         imageLoader.fetchImage(from: url)
@@ -116,14 +123,14 @@ final class ImageLoaderTests: XCTestCase {
 
 extension ImageLoaderTests {
     typealias Sut = (
-        networkManager: NetworkManagerProtocol,
-        imageCache: TemporaryImageCache
+        imageCache: ImageCacheProtocol,
+        networkManager: NetworkProtocol
     )
     
     private func makeSUT() -> Sut {
-        let networkManager = NetworkManagerMock.shared
-        let imageCache = TemporaryImageCache.shared
+        let imageCache = TemporaryImageCache()
+        let networkManager = NetworkManagerMock()
         
-        return (networkManager, imageCache)
+        return (imageCache, networkManager)
     }
 }

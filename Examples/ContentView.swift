@@ -20,7 +20,7 @@ struct ContentView: View {
         "https://image.tmdb.org/t/p/original/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg"
     ]
     
-    private static let paddingStandart: CGFloat = 20
+    private static let standartPadding: CGFloat = 20
     
     // MARK: - Body
     
@@ -77,7 +77,7 @@ struct ContentView: View {
                                 }
                             )
                             .frame(
-                                maxWidth: size.width - Self.paddingStandart * 2,
+                                maxWidth: size.width - Self.standartPadding * 2,
                                 idealHeight:
                                     getIdealHeight(
                                         geometrySize: size,
@@ -86,10 +86,10 @@ struct ContentView: View {
                             )
                             .clipped()
                             .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .padding([.leading, .trailing], Self.paddingStandart)
+                            .padding([.leading, .trailing], Self.standartPadding)
                         }
                     }
-                    .padding([.top, .bottom], Self.paddingStandart)
+                    .padding([.top, .bottom], Self.standartPadding)
                 }
             }
         }
@@ -102,7 +102,7 @@ struct ContentView: View {
     
     init() {
         // Set image cache limit.
-        TemporaryImageCache.shared.setCacheLimit(
+        ImageCache().wrappedValue.setCacheLimit(
             countLimit: 1000, // 1000 items
             totalCostLimit: 1024 * 1024 * 200 // 200 MB
         )
@@ -114,7 +114,7 @@ struct ContentView: View {
         geometrySize: CGSize,
         aspectRatio: CGFloat
     ) -> CGFloat {
-        let width = geometrySize.width - Self.paddingStandart * 2
+        let width = geometrySize.width - Self.standartPadding * 2
         return width / aspectRatio
     }
 }

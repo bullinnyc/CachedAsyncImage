@@ -10,15 +10,7 @@ import Foundation
 import Combine
 @testable import CachedAsyncImage
 
-final class NetworkManagerMock: NetworkManagerProtocol {
-    // MARK: - Public Properties
-    
-    static let shared = NetworkManagerMock()
-    
-    // MARK: - Private Initializers
-    
-    private init() {}
-    
+struct NetworkManagerMock: NetworkProtocol {
     // MARK: - Public Methods
     
     func fetchImage(from url: URL?) -> (

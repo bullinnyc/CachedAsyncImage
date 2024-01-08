@@ -52,7 +52,10 @@ public struct CachedAsyncImage: View {
         error: ((String) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
-            wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
+            wrappedValue: ImageLoader(
+                imageCache: ImageCache().wrappedValue,
+                networkManager: Network().wrappedValue
+            )
         )
         
         self.url = url
@@ -75,7 +78,10 @@ public struct CachedAsyncImage: View {
         error: ((String) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
-            wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
+            wrappedValue: ImageLoader(
+                imageCache: ImageCache().wrappedValue,
+                networkManager: Network().wrappedValue
+            )
         )
         
         self.url = url
@@ -98,7 +104,10 @@ public struct CachedAsyncImage: View {
         error: ((String) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
-            wrappedValue: ImageLoader(networkManager: NetworkManager.shared)
+            wrappedValue: ImageLoader(
+                imageCache: ImageCache().wrappedValue,
+                networkManager: Network().wrappedValue
+            )
         )
         
         self.url = url
