@@ -8,38 +8,9 @@
 
 import Foundation
 
-/// Temporary image cache.
-public final class TemporaryImageCache {
-    // MARK: - Public Properties
-    
-    /// The singleton instance.
-    ///
-    /// - Returns: The singleton `TemporaryImageCache` instance.
-    public static let shared = TemporaryImageCache()
-    
-    // MARK: - Private Properties
-    
-    private lazy var cache: NSCache<NSURL, CPImage> = {
-        let cache = NSCache<NSURL, CPImage>()
-        return cache
-    }()
-    
-    // MARK: - Subscripts
-    
-    subscript(_ key: URL) -> CPImage? {
-        get { cache.object(forKey: key as NSURL) }
-        set {
-            newValue == nil
-                ? cache.removeObject(forKey: key as NSURL)
-                : cache.setObject(newValue ?? CPImage(), forKey: key as NSURL)
-        }
-    }
-    
-    // MARK: - Private Initializers
-    
-    private init() {}
-    
-    // MARK: - Public Methods
+/// Image cache protocol.
+public protocol ImageCacheProtocol {
+    subscript(_ url: URL) -> CPImage? { get set }
     
     /// Set cache limit.
     ///
@@ -51,12 +22,39 @@ public final class TemporaryImageCache {
     ///   When you add an object to the cache, you may pass in a specified cost for the object,
     ///   such as the size in bytes of the object.
     ///   If `0`, there is no total cost limit. The default value is `0`.
+    func setCacheLimit(countLimit: Int, totalCostLimit: Int)
+    
+    /// Empties the cache.
+    func removeCache()
+}
+
+/// Temporary image cache.
+struct TemporaryImageCache: ImageCacheProtocol {
+    // MARK: - Private Properties
+    
+    private let cache: NSCache<NSURL, CPImage> = {
+        let cache = NSCache<NSURL, CPImage>()
+        return cache
+    }()
+    
+    // MARK: - Subscripts
+    
+    public subscript(_ key: URL) -> CPImage? {
+        get { cache.object(forKey: key as NSURL) }
+        set {
+            newValue == nil
+                ? cache.removeObject(forKey: key as NSURL)
+                : cache.setObject(newValue ?? CPImage(), forKey: key as NSURL)
+        }
+    }
+    
+    // MARK: - Public Methods
+    
     public func setCacheLimit(countLimit: Int = 0, totalCostLimit: Int = 0) {
         cache.countLimit = countLimit
         cache.totalCostLimit = totalCostLimit
     }
     
-    /// Empties the cache.
     public func removeCache() {
         cache.removeAllObjects()
     }
