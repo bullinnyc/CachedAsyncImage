@@ -32,6 +32,7 @@ CachedAsyncImage(
         // Create any view for placeholder (optional).
         ZStack {
             Color.yellow
+            
             ProgressView()
         }
     },
@@ -60,6 +61,7 @@ CachedAsyncImage(
             ProgressView() {
                 VStack {
                     Text("Downloading...")
+                    
                     Text("\(progress) %")
                 }
             }

@@ -10,11 +10,18 @@ import Foundation
 import Combine
 
 final class ImageLoader: ObservableObject {
+    // MARK: - Public Enums
+    
+    enum State {
+        case idle
+        case loading(_ progress: Double = .zero)
+        case failed(_ error: String)
+        case loaded(_ image: CPImage)
+    }
+    
     // MARK: - Property Wrappers
     
-    @Published var image: CPImage?
-    @Published var progress: Double?
-    @Published var errorMessage: String?
+    @Published private(set) var state: State = .idle
     
     // MARK: - Private Properties
     
@@ -22,7 +29,6 @@ final class ImageLoader: ObservableObject {
     private let networkManager: NetworkProtocol
     
     private var cancellables: Set<AnyCancellable> = []
-    private(set) var isLoading = false
     
     private static let imageProcessing = DispatchQueue(
         label: "com.cachedAsyncImage.imageProcessing"
@@ -44,12 +50,12 @@ final class ImageLoader: ObservableObject {
     // MARK: - Public Methods
     
     func fetchImage(from url: String) {
-        guard !isLoading else { return }
+        if case .loading = state { return }
         
         let url = URL(string: url)
         
         if let url = url, let cachedImage = imageCache[url] {
-            image = cachedImage
+            state = .loaded(cachedImage)
             return
         }
         
@@ -59,15 +65,17 @@ final class ImageLoader: ObservableObject {
             .publisher(for: \.fractionCompleted)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] fractionCompleted in
-                self?.progress = fractionCompleted
+                self?.state = .loading(fractionCompleted)
             }
             .store(in: &cancellables)
         
         data
             .map { CPImage(data: $0) }
-            .catch { [weak self] error -> AnyPublisher<CPImage?, Never> in
+            .catch { error -> AnyPublisher<CPImage?, Never> in
                 if let error = error as? NetworkError {
-                    self?.errorMessage(with: error.rawValue)
+                    Task { @MainActor [weak self] in
+                        self?.state = .failed(error.rawValue)
+                    }
                     
                     #if DEBUG
                     print("**** CachedAsyncImage error: \(error.rawValue)")
@@ -77,50 +85,32 @@ final class ImageLoader: ObservableObject {
                 return Just(nil).eraseToAnyPublisher()
             }
             .handleEvents(
-                receiveSubscription: { [weak self] _ in
-                    self?.start()
+                receiveSubscription: { _ in
+                    Task { @MainActor [weak self] in
+                        self?.state = .loading()
+                    }
                 },
                 receiveOutput: { [weak self] in
                     self?.cache(url: url, image: $0)
-                },
-                receiveCompletion: { [weak self] _ in
-                    self?.finish()
-                },
-                receiveCancel: { [weak self] in
-                    self?.finish()
                 }
             )
             .subscribe(on: Self.imageProcessing)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.image = $0
+            .sink { [weak self] image in
+                guard let image = image else { return }
+                self?.state = .loaded(image)
             }
             .store(in: &cancellables)
     }
     
     // MARK: - Private Methods
     
-    private func start() {
-        isLoading = true
-        errorMessage(with: nil)
-    }
-    
-    private func finish() {
-        isLoading = false
-    }
-    
-    private func cancel() {
-        cancellables.forEach { $0.cancel() }
-    }
-    
     private func cache(url: URL?, image: CPImage?) {
         guard let url = url else { return }
         image.map { imageCache[url] = $0 }
     }
     
-    private func errorMessage(with text: String?) {
-        Task { @MainActor [weak self] in
-            self?.errorMessage = text
-        }
+    private func cancel() {
+        cancellables.forEach { $0.cancel() }
     }
 }
