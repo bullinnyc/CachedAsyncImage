@@ -78,7 +78,7 @@ public struct CachedAsyncImage: View {
                 AnyView(self.image(image))
             }
         }
-        .onChange(of: url) { _, newValue in
+        .onChange(of: url) { newValue in
             imageLoader.fetchImage(from: newValue)
         }
     }
