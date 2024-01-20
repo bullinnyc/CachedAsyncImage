@@ -96,12 +96,14 @@ CachedAsyncImage(
                 .foregroundStyle(.red)
                 
                 Button(
-                    action: retry.refresh,
+                    action: retry,
                     label: {
-                        // ...
+                        Text("Retry")
+                            .foregroundStyle(.black)
+                            .opacity(0.8)
                     }
                 )
-                .buttonStyle(.plain)
+                .padding(.top)
             }
             .padding()
         }
@@ -134,6 +136,7 @@ struct MyView: View {
 
 ## Requirements
 - iOS 14.0 +
+- macOS 11.0 +
 - [SwiftUI](https://developer.apple.com/xcode/swiftui/)
 
 ## License

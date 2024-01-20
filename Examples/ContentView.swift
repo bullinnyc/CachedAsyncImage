@@ -59,7 +59,7 @@ struct ContentView: View {
                                 },
                                 error: { error, retry in
                                     // Create any view for error (optional).
-                                    self.error(error, action: retry.refresh)
+                                    self.error(error, action: retry)
                                 }
                             )
                             .frame(
@@ -139,13 +139,11 @@ extension ContentView {
         Button(
             action: { action?() },
             label: {
-                Image(systemName: "arrow.circlepath")
-                    .resizable()
-                    .frame(width: 40, height: 36)
-                    .opacity(0.6)
+                Text("Retry")
+                    .foregroundStyle(.black)
+                    .opacity(0.8)
             }
         )
-        .buttonStyle(.plain)
     }
 }
 

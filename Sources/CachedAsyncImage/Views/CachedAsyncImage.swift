@@ -8,12 +8,6 @@
 
 import SwiftUI
 
-/// Refreshable protocol.
-public protocol Refreshable {
-    /// Retry load the image.
-    func refresh()
-}
-
 /// CachedAsyncImage view.
 public struct CachedAsyncImage: View {
     // MARK: - Property Wrappers
@@ -25,7 +19,7 @@ public struct CachedAsyncImage: View {
     private let url: String
     private let placeholder: ((String) -> any View)?
     private let image: (CPImage) -> any View
-    private let error: ((String, Refreshable) -> any View)?
+    private let error: ((String, @escaping () -> Void) -> any View)?
     
     // MARK: - Initializers
     
@@ -33,12 +27,12 @@ public struct CachedAsyncImage: View {
     ///   - url: The URL for which to create a image.
     ///   - placeholder: Placeholder with progress to be displayed.
     ///   - image: Image to be displayed.
-    ///   - error: Error with retry action to be displayed.
+    ///   - error: Error with retry handler to be displayed.
     public init(
         url: String,
         placeholder: ((String) -> any View)? = nil,
         image: @escaping (CPImage) -> any View,
-        error: ((String, Refreshable) -> any View)? = nil
+        error: ((String, @escaping () -> Void) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
             wrappedValue: ImageLoader(
@@ -61,7 +55,7 @@ public struct CachedAsyncImage: View {
             case .idle:
                 Color.clear
                     .onAppear {
-                        imageLoader.fetchImage(from: url)
+                        fetchImage(from: url)
                     }
             case .loading(let progress):
                 if let placeholder = placeholder {
@@ -72,22 +66,20 @@ public struct CachedAsyncImage: View {
                 }
             case .failed(let errorMessage):
                 if let error = error {
-                    AnyView(error(errorMessage, self))
+                    AnyView(error(errorMessage, { fetchImage(from: url) }))
                 }
             case .loaded(let image):
                 AnyView(self.image(image))
             }
         }
         .onChange(of: url) { newValue in
-            imageLoader.fetchImage(from: newValue)
+            fetchImage(from: newValue)
         }
     }
-}
-
-// MARK: - Ext. Refreshable
-
-extension CachedAsyncImage: Refreshable {
-    public func refresh() {
+    
+    // MARK: - Private Methods
+    
+    private func fetchImage(from url: String) {
         imageLoader.fetchImage(from: url)
     }
 }
@@ -152,13 +144,19 @@ struct CachedAsyncImage_Previews: PreviewProvider {
         Button(
             action: { action?() },
             label: {
-                Image(systemName: "arrow.circlepath")
-                    .resizable()
-                    .frame(width: 40, height: 36)
-                    .opacity(0.6)
+                Text("Retry")
+                    .conditional { view in
+                        if #available(iOS 15.0, macOS 12.0, *) {
+                            view
+                                .foregroundStyle(.black)
+                        } else {
+                            view
+                                .foregroundColor(.black)
+                        }
+                    }
+                    .opacity(0.8)
             }
         )
-        .buttonStyle(.plain)
     }
     
     static var previews: some View {
@@ -188,7 +186,7 @@ struct CachedAsyncImage_Previews: PreviewProvider {
                     image($0)
                 },
                 error: { error, retry in
-                    self.error(error, action: retry.refresh)
+                    self.error(error, action: retry)
                 }
             )
             
@@ -201,7 +199,7 @@ struct CachedAsyncImage_Previews: PreviewProvider {
                     image($0)
                 },
                 error: { error, retry in
-                    self.error(error, action: retry.refresh)
+                    self.error(error, action: retry)
                 }
             )
         }
