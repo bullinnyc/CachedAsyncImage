@@ -22,24 +22,6 @@ public struct CachedAsyncImage: View {
     private let image: (CPImage) -> any View
     private let error: ((String) -> any View)?
     
-    // MARK: - Body
-    
-    public var body: some View {
-        ZStack {
-            if let uiImage = imageLoader.image {
-                AnyView(image(uiImage))
-            } else {
-                errorOrPlaceholder
-            }
-        }
-        .onChange(of: url) { _, newValue in
-            imageLoader.fetchImage(from: newValue)
-        }
-        .onAppear {
-            imageLoader.fetchImage(from: url)
-        }
-    }
-    
     // MARK: - Initializers
     
     /// - Parameters:
@@ -117,26 +99,47 @@ public struct CachedAsyncImage: View {
         
         placeholderWithProgress = placeholder
     }
+    
+    // MARK: - Body
+    
+    public var body: some View {
+        ZStack {
+            switch imageLoader.state {
+            case .idle:
+                Color.clear
+                    .onAppear {
+                        imageLoader.fetchImage(from: url)
+                    }
+            case .loading(let progress):
+                placeholder(progress)
+            case .failed(let errorMessage):
+                if let error = error {
+                    AnyView(error(errorMessage))
+                }
+            case .loaded(let image):
+                AnyView(self.image(image))
+            }
+        }
+        .onChange(of: url) { _, newValue in
+            imageLoader.fetchImage(from: newValue)
+        }
+    }
 }
 
 // MARK: - Ext. Configure views
 
 extension CachedAsyncImage {
     @ViewBuilder
-    private var errorOrPlaceholder: some View {
-        if let error = error, let errorMessage = imageLoader.errorMessage {
-            AnyView(error(errorMessage))
-        } else {
-            if let placeholder = placeholder {
-                AnyView(placeholder())
-            }
+    private func placeholder(_ progress: Double) -> some View {
+        if let placeholder = placeholder {
+            AnyView(placeholder())
+        }
+        
+        if let placeholderWithProgress = placeholderWithProgress {
+            let percentValue = Int(progress * 100)
+            let progress = String(percentValue)
             
-            if let placeholderWithProgress = placeholderWithProgress {
-                let percentValue = Int((imageLoader.progress ?? .zero) * 100)
-                let progress = String(percentValue)
-                
-                AnyView(placeholderWithProgress(progress))
-            }
+            AnyView(placeholderWithProgress(progress))
         }
     }
 }
@@ -147,6 +150,7 @@ struct CachedAsyncImage_Previews: PreviewProvider {
     static var placeholder: some View {
         ZStack {
             Color.yellow
+            
             ProgressView()
         }
     }
@@ -158,6 +162,7 @@ struct CachedAsyncImage_Previews: PreviewProvider {
             ProgressView() {
                 VStack {
                     Text("Downloading...")
+                    
                     Text("\(progress) %")
                 }
             }

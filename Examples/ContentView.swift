@@ -22,6 +22,16 @@ struct ContentView: View {
     
     private static let standartPadding: CGFloat = 20
     
+    // MARK: - Initializers
+    
+    init() {
+        // Set image cache limit.
+        ImageCache().wrappedValue.setCacheLimit(
+            countLimit: 1000, // 1000 items
+            totalCostLimit: 1024 * 1024 * 200 // 200 MB
+        )
+    }
+    
     // MARK: - Body
     
     var body: some View {
@@ -45,6 +55,7 @@ struct ContentView: View {
                                         ProgressView() {
                                             VStack {
                                                 Text("Downloading...")
+                                                
                                                 Text("\(progress) %")
                                             }
                                         }
@@ -96,16 +107,6 @@ struct ContentView: View {
         #if os(macOS)
         .frame(width: 300, height: 450)
         #endif
-    }
-    
-    // MARK: - Initializers
-    
-    init() {
-        // Set image cache limit.
-        ImageCache().wrappedValue.setCacheLimit(
-            countLimit: 1000, // 1000 items
-            totalCostLimit: 1024 * 1024 * 200 // 200 MB
-        )
     }
     
     // MARK: - Private Methods

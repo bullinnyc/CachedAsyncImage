@@ -46,15 +46,20 @@ final class ImageLoaderTests: XCTestCase {
         imageLoader.fetchImage(from: url)
         
         // Then
-        XCTAssertNotNil(imageLoader.image, "Image should be not nil.")
+        var imageLoaderImage: CPImage?
+        
+        switch imageLoader.state {
+        case .loaded(let image):
+            imageLoaderImage = image
+        default:
+            break
+        }
         
         XCTAssertEqual(
-            imageLoader.image,
+            imageLoaderImage,
             cachedImage,
             "Image's should be equal."
         )
-        
-        XCTAssertFalse(imageLoader.isLoading, "Loading should be false.")
     }
     
     func testFetchImage_WithoutCachedImage() {
@@ -78,38 +83,28 @@ final class ImageLoaderTests: XCTestCase {
             fatalError("Bad URL or nil.")
         }
         
-        XCTAssertNil(imageLoader.image, "Image should be nil.")
-        XCTAssertNil(imageLoader.progress, "Progress message should be nil.")
-        XCTAssertNil(imageCache[imageUrl], "Image cache should be nil.")
-        
         let expectation = XCTestExpectation(description: "Fetch image.")
         
-        let subscription = imageLoader.$image
-            .sink { image in
-                if image != nil {
+        let subscription = imageLoader.$state
+            .sink { state in
+                var imageLoaderImage: CPImage?
+                
+                switch state {
+                case .loaded(let image):
+                    imageLoaderImage = image
+                default:
+                    break
+                }
+                
+                if imageLoaderImage != nil {
                     XCTAssertNotNil(
-                        image,
+                        imageLoaderImage,
                         "Image should be not nil."
                     )
                     
                     XCTAssertNotNil(
                         imageCache[imageUrl],
                         "Image cache should be not nil."
-                    )
-                    
-                    XCTAssertNotNil(
-                        imageLoader.progress,
-                        "Progress message should be not nil."
-                    )
-                    
-                    XCTAssertNil(
-                        imageLoader.errorMessage,
-                        "Error message should be nil."
-                    )
-                    
-                    XCTAssertFalse(
-                        imageLoader.isLoading,
-                        "Loading should be false."
                     )
                     
                     expectation.fulfill()
