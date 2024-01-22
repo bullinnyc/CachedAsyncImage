@@ -49,17 +49,7 @@ struct ContentView: View {
                                 url: url,
                                 placeholder: { progress in
                                     // Create any view for placeholder (optional).
-                                    ZStack {
-                                        Color.yellow
-                                        
-                                        ProgressView() {
-                                            VStack {
-                                                Text("Downloading...")
-                                                
-                                                Text("\(progress) %")
-                                            }
-                                        }
-                                    }
+                                    placeholder(progress)
                                 },
                                 image: {
                                     // Customize image.
@@ -67,24 +57,9 @@ struct ContentView: View {
                                         .resizable()
                                         .scaledToFill()
                                 },
-                                error: { error in
+                                error: { error, retry in
                                     // Create any view for error (optional).
-                                    ZStack {
-                                        Color.yellow
-                                        
-                                        VStack {
-                                            Group {
-                                                Text("Error:")
-                                                    .bold()
-                                                
-                                                Text(error)
-                                            }
-                                            .font(.footnote)
-                                            .multilineTextAlignment(.center)
-                                            .foregroundStyle(.red)
-                                        }
-                                        .padding()
-                                    }
+                                    self.error(error, action: retry)
                                 }
                             )
                             .frame(
@@ -117,6 +92,58 @@ struct ContentView: View {
     ) -> CGFloat {
         let width = geometrySize.width - Self.standartPadding * 2
         return width / aspectRatio
+    }
+}
+
+// MARK: - Ext. Configure views
+
+@available(iOS 15.0, macOS 12.0, *)
+extension ContentView {
+    func placeholder(_ progress: String) -> some View {
+        ZStack {
+            Color.yellow
+            
+            ProgressView() {
+                VStack {
+                    Text("Downloading...")
+                    
+                    Text("\(progress) %")
+                }
+            }
+        }
+    }
+    
+    func error(_ error: String, action: (() -> Void)? = nil) -> some View {
+        ZStack {
+            Color.yellow
+            
+            VStack {
+                Group {
+                    Text("Error:")
+                        .bold()
+                    
+                    Text(error)
+                }
+                .font(.footnote)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.red)
+                
+                retry(action: action)
+                    .padding(.top)
+            }
+            .padding()
+        }
+    }
+    
+    func retry(action: (() -> Void)?) -> some View {
+        Button(
+            action: { action?() },
+            label: {
+                Text("Retry")
+                    .foregroundStyle(.black)
+                    .opacity(0.8)
+            }
+        )
     }
 }
 

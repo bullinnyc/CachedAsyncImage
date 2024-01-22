@@ -17,47 +17,22 @@ public struct CachedAsyncImage: View {
     // MARK: - Private Properties
     
     private let url: String
-    private let placeholder: (() -> any View)?
-    private let placeholderWithProgress: ((String) -> any View)?
+    private let placeholder: ((String) -> any View)?
     private let image: (CPImage) -> any View
-    private let error: ((String) -> any View)?
+    private let error: ((String, @escaping () -> Void) -> any View)?
     
     // MARK: - Initializers
     
     /// - Parameters:
     ///   - url: The URL for which to create a image.
+    ///   - placeholder: Placeholder with progress to be displayed.
     ///   - image: Image to be displayed.
-    ///   - error: Error to be displayed.
+    ///   - error: Error with retry handler to be displayed.
     public init(
         url: String,
+        placeholder: ((String) -> any View)? = nil,
         image: @escaping (CPImage) -> any View,
-        error: ((String) -> any View)? = nil
-    ) {
-        _imageLoader = StateObject(
-            wrappedValue: ImageLoader(
-                imageCache: ImageCache().wrappedValue,
-                networkManager: Network().wrappedValue
-            )
-        )
-        
-        self.url = url
-        self.image = image
-        self.error = error
-        
-        placeholder = nil
-        placeholderWithProgress = nil
-    }
-    
-    /// - Parameters:
-    ///   - url: The URL for which to create a image.
-    ///   - placeholder: Placeholder to be displayed.
-    ///   - image: Image to be displayed.
-    ///   - error: Error to be displayed.
-    public init(
-        url: String,
-        placeholder: (() -> any View)? = nil,
-        image: @escaping (CPImage) -> any View,
-        error: ((String) -> any View)? = nil
+        error: ((String, @escaping () -> Void) -> any View)? = nil
     ) {
         _imageLoader = StateObject(
             wrappedValue: ImageLoader(
@@ -70,34 +45,6 @@ public struct CachedAsyncImage: View {
         self.placeholder = placeholder
         self.image = image
         self.error = error
-        
-        placeholderWithProgress = nil
-    }
-    
-    /// - Parameters:
-    ///   - url: The URL for which to create a image.
-    ///   - placeholder: Placeholder with progress to be displayed.
-    ///   - image: Image to be displayed.
-    ///   - error: Error to be displayed.
-    public init(
-        url: String,
-        placeholder: ((String) -> any View)? = nil,
-        image: @escaping (CPImage) -> any View,
-        error: ((String) -> any View)? = nil
-    ) {
-        _imageLoader = StateObject(
-            wrappedValue: ImageLoader(
-                imageCache: ImageCache().wrappedValue,
-                networkManager: Network().wrappedValue
-            )
-        )
-        
-        self.url = url
-        self.placeholder = nil
-        self.image = image
-        self.error = error
-        
-        placeholderWithProgress = placeholder
     }
     
     // MARK: - Body
@@ -108,54 +55,39 @@ public struct CachedAsyncImage: View {
             case .idle:
                 Color.clear
                     .onAppear {
-                        imageLoader.fetchImage(from: url)
+                        fetchImage(from: url)
                     }
             case .loading(let progress):
-                placeholder(progress)
+                if let placeholder = placeholder {
+                    let percentValue = Int(progress * 100)
+                    let progress = String(percentValue)
+                    
+                    AnyView(placeholder(progress))
+                }
             case .failed(let errorMessage):
                 if let error = error {
-                    AnyView(error(errorMessage))
+                    AnyView(error(errorMessage, { fetchImage(from: url) }))
                 }
             case .loaded(let image):
                 AnyView(self.image(image))
             }
         }
-        .onChange(of: url) { _, newValue in
-            imageLoader.fetchImage(from: newValue)
+        .onChange(of: url) { newValue in
+            fetchImage(from: newValue)
         }
     }
-}
-
-// MARK: - Ext. Configure views
-
-extension CachedAsyncImage {
-    @ViewBuilder
-    private func placeholder(_ progress: Double) -> some View {
-        if let placeholder = placeholder {
-            AnyView(placeholder())
-        }
-        
-        if let placeholderWithProgress = placeholderWithProgress {
-            let percentValue = Int(progress * 100)
-            let progress = String(percentValue)
-            
-            AnyView(placeholderWithProgress(progress))
-        }
+    
+    // MARK: - Private Methods
+    
+    private func fetchImage(from url: String) {
+        imageLoader.fetchImage(from: url)
     }
 }
 
 // MARK: - Preview Provider
 
 struct CachedAsyncImage_Previews: PreviewProvider {
-    static var placeholder: some View {
-        ZStack {
-            Color.yellow
-            
-            ProgressView()
-        }
-    }
-    
-    static func placeholderWithProgress(_ progress: String) -> some View {
+    static func placeholder(_ progress: String) -> some View {
         ZStack {
             Color.yellow
             
@@ -175,7 +107,10 @@ struct CachedAsyncImage_Previews: PreviewProvider {
             .scaledToFit()
     }
     
-    static func error(_ error: String) -> some View {
+    static func error(
+        _ error: String,
+        action: (() -> Void)? = nil
+    ) -> some View {
         ZStack {
             Color.yellow
             
@@ -197,9 +132,31 @@ struct CachedAsyncImage_Previews: PreviewProvider {
                             .foregroundColor(.red)
                     }
                 }
+                
+                retry(action: action)
+                    .padding(.top)
             }
             .padding()
         }
+    }
+    
+    static func retry(action: (() -> Void)?) -> some View {
+        Button(
+            action: { action?() },
+            label: {
+                Text("Retry")
+                    .conditional { view in
+                        if #available(iOS 15.0, macOS 12.0, *) {
+                            view
+                                .foregroundStyle(.black)
+                        } else {
+                            view
+                                .foregroundColor(.black)
+                        }
+                    }
+                    .opacity(0.8)
+            }
+        )
     }
     
     static var previews: some View {
@@ -215,18 +172,8 @@ struct CachedAsyncImage_Previews: PreviewProvider {
             
             CachedAsyncImage(
                 url: url,
-                placeholder: {
-                    placeholder
-                },
-                image: {
-                    image($0)
-                }
-            )
-            
-            CachedAsyncImage(
-                url: url,
-                placeholder: {
-                    placeholderWithProgress($0)
+                placeholder: { progress in
+                    placeholder(progress)
                 },
                 image: {
                     image($0)
@@ -238,34 +185,21 @@ struct CachedAsyncImage_Previews: PreviewProvider {
                 image: {
                     image($0)
                 },
-                error: {
-                    error($0)
+                error: { error, retry in
+                    self.error(error, action: retry)
                 }
             )
             
             CachedAsyncImage(
                 url: url,
-                placeholder: {
-                    placeholder
+                placeholder: { progress in
+                    placeholder(progress)
                 },
                 image: {
                     image($0)
                 },
-                error: {
-                    error($0)
-                }
-            )
-            
-            CachedAsyncImage(
-                url: url,
-                placeholder: {
-                    placeholderWithProgress($0)
-                },
-                image: {
-                    image($0)
-                },
-                error: {
-                    error($0)
+                error: { error, retry in
+                    self.error(error, action: retry)
                 }
             )
         }

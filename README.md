@@ -28,12 +28,18 @@ let exampleUrl = "https://example.com/image.jpg"
 
 CachedAsyncImage(
     url: exampleUrl,
-    placeholder: {
+    placeholder: { progress in
         // Create any view for placeholder (optional).
         ZStack {
             Color.yellow
             
-            ProgressView()
+            ProgressView() {
+                VStack {
+                    Text("Downloading...")
+                    
+                    Text("\(progress) %")
+                }
+            }
         }
     },
     image: {
@@ -73,7 +79,7 @@ CachedAsyncImage(
             .resizable()
             .scaledToFill()
     },
-    error: { error in
+    error: { error, retry in
         // Create any view for error (optional).
         ZStack {
             Color.yellow
@@ -88,6 +94,16 @@ CachedAsyncImage(
                 .font(.footnote)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.red)
+                
+                Button(
+                    action: retry,
+                    label: {
+                        Text("Retry")
+                            .foregroundStyle(.black)
+                            .opacity(0.8)
+                    }
+                )
+                .padding(.top)
             }
             .padding()
         }
@@ -120,6 +136,7 @@ struct MyView: View {
 
 ## Requirements
 - iOS 14.0 +
+- macOS 11.0 +
 - [SwiftUI](https://developer.apple.com/xcode/swiftui/)
 
 ## License

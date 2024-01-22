@@ -83,7 +83,7 @@ final class ImageLoaderTests: XCTestCase {
             fatalError("Bad URL or nil.")
         }
         
-        let expectation = XCTestExpectation(description: "Fetch image.")
+        let expectation = XCTestExpectation(description: "Fetch image")
         
         let subscription = imageLoader.$state
             .sink { state in
