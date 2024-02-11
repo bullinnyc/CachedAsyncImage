@@ -52,14 +52,12 @@ final class ImageLoader: ObservableObject {
     func fetchImage(from url: String) {
         if case .loading = state { return }
         
-        let url = URL(string: url)
-        
-        if let url = url, let cachedImage = imageCache[url] {
+        if let url = URL(string: url), let cachedImage = imageCache[url] {
             state = .loaded(cachedImage)
             return
         }
         
-        let (progress, data) = networkManager.fetchImage(from: url)
+        let (progress, data) = networkManager.fetchImage(from: URL(string: url))
         
         progress?
             .publisher(for: \.fractionCompleted)
@@ -71,15 +69,13 @@ final class ImageLoader: ObservableObject {
         
         data
             .map { CPImage(data: $0) }
-            .catch { error -> AnyPublisher<CPImage?, Never> in
+            .catch { [weak self] error -> AnyPublisher<CPImage?, Never> in
                 if let error = error as? NetworkError {
                     Task { @MainActor [weak self] in
                         self?.state = .failed(error.rawValue)
                     }
                     
-                    #if DEBUG
-                    print("**** CachedAsyncImage error: \(error.rawValue)")
-                    #endif
+                    self?.log(error.rawValue, url: url)
                 }
                 
                 return Just(nil).eraseToAnyPublisher()
@@ -91,7 +87,7 @@ final class ImageLoader: ObservableObject {
                     }
                 },
                 receiveOutput: { [weak self] in
-                    self?.cache(url: url, image: $0)
+                    self?.cache(url: URL(string: url), image: $0)
                 }
             )
             .subscribe(on: Self.imageProcessing)
@@ -112,5 +108,16 @@ final class ImageLoader: ObservableObject {
     
     private func cancel() {
         cancellables.forEach { $0.cancel() }
+    }
+    
+    private func log(_ error: String, url: String) {
+        guard let emoji = Emoji.getEmoji(from: .hammer) else { return }
+        
+        let errorMessage = "Error: \(error)"
+        let urlMessage = "URL: \(url)"
+        
+        Log.failure.error(
+            "\(emoji) CachedAsyncImage\n\(errorMessage)\n\(urlMessage)"
+        )
     }
 }

@@ -47,8 +47,10 @@ struct NetworkManager: NetworkProtocol {
         publisher: AnyPublisher<Data, Error>
     ) {
         guard let url = url else {
-            return (nil, Fail(error: NetworkError.badURL())
-                .eraseToAnyPublisher())
+            return (
+                nil,
+                Fail(error: NetworkError.badURL()).eraseToAnyPublisher()
+            )
         }
         
         let sharedPublisher = URLSession.shared
