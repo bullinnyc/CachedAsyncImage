@@ -9,7 +9,7 @@
 import SwiftUI
 import CachedAsyncImage
 
-@available(iOS 15.0, macOS 12.0, *)
+@available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, visionOS 1.0, *)
 struct ContentView: View {
     // MARK: - Private Properties
     
@@ -97,7 +97,7 @@ struct ContentView: View {
 
 // MARK: - Ext. Configure views
 
-@available(iOS 15.0, macOS 12.0, *)
+@available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, visionOS 1.0, *)
 extension ContentView {
     func placeholder(_ progress: String) -> some View {
         ZStack {
@@ -149,7 +149,7 @@ extension ContentView {
 
 // MARK: - Preview Provider
 
-@available(iOS 15.0, macOS 12.0, *)
+@available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, visionOS 1.0, *)
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()

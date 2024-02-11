@@ -124,7 +124,14 @@ struct CachedAsyncImage_Previews: PreviewProvider {
                 .font(.footnote)
                 .multilineTextAlignment(.center)
                 .conditional { view in
-                    if #available(iOS 15.0, macOS 12.0, *) {
+                    if #available(
+                        iOS 15.0,
+                        macOS 12.0,
+                        tvOS 15.0,
+                        watchOS 8.0,
+                        visionOS 1.0,
+                        *
+                    ) {
                         view
                             .foregroundStyle(.red)
                     } else {
@@ -146,7 +153,14 @@ struct CachedAsyncImage_Previews: PreviewProvider {
             label: {
                 Text("Retry")
                     .conditional { view in
-                        if #available(iOS 15.0, macOS 12.0, *) {
+                        if #available(
+                            iOS 15.0,
+                            macOS 12.0,
+                            tvOS 15.0,
+                            watchOS 8.0,
+                            visionOS 1.0,
+                            *
+                        ) {
                             view
                                 .foregroundStyle(.black)
                         } else {

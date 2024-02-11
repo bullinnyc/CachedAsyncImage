@@ -6,7 +6,7 @@
 //  Copyright © 2023 Dmitry Kononchuk. All rights reserved.
 //
 
-#if os(iOS)
+#if os(iOS) || os(tvOS) || os(watchOS) || os(visionOS)
 import UIKit
 import SwiftUI
 

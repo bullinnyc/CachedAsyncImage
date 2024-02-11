@@ -9,6 +9,10 @@
 #if canImport(UIKit)
 import UIKit
 
+#if os(watchOS)
+import SwiftUI
+#endif
+
 /// Resources manager typealias.
 public typealias RM = ResourcesManager
 
@@ -17,11 +21,7 @@ public final class ResourcesManager {
     // MARK: - Public Properties
     
     /// An object that stores color data.
-    public static let snow = UIColor(
-        named: "snow",
-        in: Bundle.module,
-        compatibleWith: nil
-    ) ?? UIColor()
+    public static let snow = getColor(with: "snow")
     
     // MARK: - Public Methods
     
@@ -32,6 +32,20 @@ public final class ResourcesManager {
     /// - Returns: An initialized image object or `nil` if the object was not found in the resources.
     public static func image(_ name: String) -> UIImage? {
         UIImage(named: name, in: Bundle.module, with: nil)
+    }
+    
+    // MARK: - Private Methods
+    
+    private static func getColor(with name: String) -> UIColor {
+        #if os(watchOS)
+        UIColor(Color(name, bundle: Bundle.module))
+        #elseif os(iOS) || os(tvOS) || os(visionOS)
+        UIColor(
+            named: name,
+            in: Bundle.module,
+            compatibleWith: nil
+        ) ?? UIColor()
+        #endif
     }
 }
 #elseif canImport(AppKit)
